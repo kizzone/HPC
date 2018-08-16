@@ -1,0 +1,96 @@
+/*
+ * Copyright 2018 NetSec Lab - University of Parma
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author(s):
+ * Luca Veltri (luca.veltri@unipr.it)
+ */
+
+package it.unipr.netsec.nemo.examples;
+
+
+import org.zoolu.util.ByteUtils;
+
+import it.unipr.netsec.ipstack.ip6.Ip6Address;
+import it.unipr.netsec.ipstack.ip6.Ip6Packet;
+import it.unipr.netsec.ipstack.ip6.exthdr.ExtensionHeader;
+import it.unipr.netsec.ipstack.ip6.exthdr.RoutingHeader;
+import it.unipr.netsec.ipstack.ip6.exthdr.SegmentRoutingHeader;
+import it.unipr.netsec.ipstack.link.LinkInterface;
+import it.unipr.netsec.ipstack.net.NetInterface;
+import it.unipr.netsec.ipstack.net.Packet;
+
+
+/** Segment-Routing capable router.
+ * */
+public class SimpleIp6SrRouter extends SimpleIpRouter {
+	
+	/** Creates a new router.
+	 * @param local_link_addr local link address */
+	public SimpleIp6SrRouter(String local_link_addr) {
+		super(local_link_addr);
+	}
+		
+	/** Creates a new router.
+	 * @param local_link_addr local link address
+	 * @param net_interfaces network interfaces */
+	public SimpleIp6SrRouter(String local_link_addr, LinkInterface[] net_interfaces) {
+		super(local_link_addr,net_interfaces);
+	}
+
+	
+	@Override
+	protected void processIncomingPacket(NetInterface ni, Packet pkt) {
+		Ip6Packet ip6_pkt=(Ip6Packet)pkt;
+		debug("Ip6SrRouter#processIncomingPacket(): "+ByteUtils.bytesToHexString(ip6_pkt.getBytes()));
+		Ip6Address dest_addr=(Ip6Address)ip6_pkt.getDestAddress();
+		if (hasAddress(dest_addr)) {
+			debug("packet is for this router");
+			if (ip6_pkt.hasExtHdr(ExtensionHeader.ROUTING_HDR)) {
+				//debug(local_addrs[0]+": packet has RH");
+				RoutingHeader rh=new RoutingHeader(ip6_pkt.getExtHdr(ExtensionHeader.ROUTING_HDR));
+				if (rh.getRoutingType()==RoutingHeader.TYPE_SRH) {
+					debug("packet has SRH");
+					SegmentRoutingHeader srh=new SegmentRoutingHeader(rh);
+					int segment_left=srh.getSegmentLeft();
+					if (segment_left>0) {
+						debug("there are more segments");
+						srh.setSegmentLeft(--segment_left);
+						dest_addr=srh.getSegmentAt(segment_left);
+						ip6_pkt.setDestAddress(dest_addr);
+						if (segment_left==0) {
+							// IF Clean-up bit is set THEN remove the SRH
+							debug("last segment");
+							if (srh.getCleanupFlag()) {
+								debug("clean-up");
+								ip6_pkt.removeExtHdr(ExtensionHeader.ROUTING_HDR);
+							}
+						}
+						// forward the packet
+						super.processIncomingPacket(ni,ip6_pkt);
+					}
+					else {
+						// give the packet to the next PID (application)
+						debug("end of segments");
+					}
+				}
+			}
+		}
+		else {
+			// forward the packet
+			super.processIncomingPacket(ni,ip6_pkt);
+		}
+	}
+
+}
