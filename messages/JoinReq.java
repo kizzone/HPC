@@ -9,7 +9,7 @@ package messages;
 
 /**
  *
- * @author domenico
+ * @author domenico & domenico
  */
 
 public class JoinReq {
@@ -35,10 +35,5 @@ public class JoinReq {
     public String toString(){
         return this.getIpAdress() + "&" + this.getTimeSlot();
     }
-    
-
-
-
-    
     
 }

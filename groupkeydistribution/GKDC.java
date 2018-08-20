@@ -1,6 +1,7 @@
 package groupkeydistribution;
 
 
+import groupkeydistribution.utilities.BinaryTree;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.Inet4Address;
@@ -19,6 +20,10 @@ import java.util.logging.Logger;
 
 
 public class GKDC {
+    
+    
+    //usato per tenere traccia dell'albero
+    BinaryTree bT = new BinaryTree();
     
     
     public static final String ANSI_RESET = "\u001B[0m";
@@ -63,12 +68,15 @@ public class GKDC {
                         
                         while(true){
                             try {
+                                //la receuve dovrebbe essere bloccante
                                 management_sock.receive(pktrcv);
                             } catch (IOException ex) {
                                 Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             System.out.println( ANSI_GREEN + "GKDC received a new join request : " + new String(pktrcv.getData(),0,pktrcv.getLength())+ "\n creating JOIN - RESPONSE " +  ANSI_RESET);
                             //creating join response
+                            
+                            //sending join response 
                             
                         }
                                     
@@ -90,7 +98,7 @@ public class GKDC {
                     	management_sock.receive(pktrcv);
                         System.out.println( ANSI_GREEN + "GKDC received: " + new String(pktrcv.getData(),0,pktrcv.getLength())+ ANSI_RESET);
  
-                    
+                        
                 }
 	        */
                 

@@ -16,7 +16,7 @@ package messages;
 
 /**
  *
- * @author domenico
+ * @author domenico & domenico
  */
 
 public class JoinResp {
