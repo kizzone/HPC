@@ -5,6 +5,8 @@
  */
 package groupkeydistribution.utilities;
 
+import java.util.Random;
+
 /**
  *
  * @author domenico
@@ -12,14 +14,27 @@ package groupkeydistribution.utilities;
 public class Node {
     
     
-    protected Object value;
+    private byte[] x00 = new byte[16];
+    public int riga;
+    public int pos;
+
+
     protected Node left;
     protected Node right;
+
+    public void setX00(byte[] x00) {
+        this.x00 = x00;
+    }
+
+    public byte[] getX00() {
+        return x00;
+    }
     
     
-    public Node (Object value){
+    public Node (){
         
-        this.value = value;
+        this.riga = 0;
+        this.pos = 0;
         this.left = null;
         this.right = null;
        

@@ -15,6 +15,7 @@ import it.unipr.netsec.ipstack.udp.DatagramSocket;
 import it.unipr.netsec.ipstack.udp.UdpLayer;
 import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,7 +42,7 @@ public class GKDC {
 	public static final int DATA_PORT=4000;
 	
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
-	public GKDC(IpLink network, Ip4AddressPrefix gkdc_addr) throws IOException {
+	public GKDC(IpLink network, Ip4AddressPrefix gkdc_addr) throws IOException, NoSuchAlgorithmException {
 		// create virtual IP STACK
 		Ip4Layer ip=new Ip4Layer(new NetInterface[]{new IpLinkInterface(network,gkdc_addr)});
 		UdpLayer udp=new UdpLayer(ip);
@@ -55,6 +56,12 @@ public class GKDC {
 		System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(pkt.getData(),0,pkt.getLength()) + ANSI_RESET );
 		data_sock.send(pkt);
 
+                BinaryTree bT = new BinaryTree();
+                
+                groupkeydistribution.utilities.Node node = bT.buildTree(bT.getRoot(),3);
+                
+                
+                bT.traverseInOrder(node);
                 
                 //===============================ultima modifica con thread
                 
