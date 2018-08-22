@@ -5,8 +5,6 @@
  */
 package messages;
 
-
-
 /**
  *
  * @author domenico & domenico
