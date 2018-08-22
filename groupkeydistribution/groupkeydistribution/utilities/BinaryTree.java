@@ -69,8 +69,10 @@ public class BinaryTree {
             traversePreOrder(node.left,h,p);
             traversePreOrder(node.right,h,p);
         }
-        System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
-        return node;
+        else {
+            System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
+            return node;
+        }
     }
     
     
