@@ -7,15 +7,18 @@ package groupkeydistribution.utilities;
 
 
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 
 /**
- *
+ * 
  * @author domenico
  */
+
 public class BinaryTree {
     
     Node root;
@@ -24,36 +27,60 @@ public class BinaryTree {
         return root;
     }
     
-    public BinaryTree(){
+    public BinaryTree() throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
         this.root =  new Node();
-        new Random().nextBytes(this.root.getX00());
+/*      new Random().nextBytes(this.root.getX00());
+        MessageDigest msg = MessageDigest.getInstance("MD5");
+        msg.update(this.root.getX00());
+        this.root.setX00(msg.digest().toString().getBytes("UTF-8"));*/
         
+        byte[] array = new byte[16]; // length is bounded by 7
+        new Random().nextBytes(array);
+        String generatedString = new String(array, Charset.forName("UTF-8"));
+        
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        byte[] encodedhash = digest.digest(generatedString.getBytes("UTF-8"));
+        root.setX00(encodedhash);
+        System.out.println("ahhhhhhh " + bytesToHex(encodedhash));
+        System.out.println("ribalto " + bytesToHex(generatedString.getBytes("UTF-8")));
     }
     
     
     
     //
-    public void f0 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException{
-        //hash di quello che ci passo
-        MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-        messageDigest.update(current.getX00());
-        String encryptedString = new String(messageDigest.digest());
+    public void f0 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
+        String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));
+        
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        byte[] encodedhash = digest.digest(generatedString.getBytes("UTF-8"));
+        
         Node newNode = new Node();
-        newNode.setX00(encryptedString.getBytes());
+        newNode.setX00( encodedhash );
         newNode.riga = riga;
         newNode.pos  = pos;
         current.left =  newNode;
-       //return newNode;
         
     }
-    public void f1 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException{
+    public void f1 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
-        MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+        /*MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+        
         messageDigest.update( addOne(current.getX00() ) );
-        String encryptedString = new String(messageDigest.digest());
+        String encryptedString = messageDigest.digest().toString();
         Node newNode = new Node();
-        newNode.setX00( encryptedString.getBytes() );
+        newNode.setX00( encryptedString.getBytes("UTF-8") );
+        newNode.riga = riga;
+        newNode.pos  = pos;
+        current.right =  newNode;*/
+    	
+        String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));
+        
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        byte[] encodedhash = digest.digest(incrementAtIndex(generatedString.getBytes("UTF-8"),0));
+        
+        Node newNode = new Node();
+        newNode.setX00( encodedhash );
         newNode.riga = riga;
         newNode.pos  = pos;
         current.right =  newNode;
@@ -83,25 +110,23 @@ public class BinaryTree {
     
     
     
-    public Node buildTree (Node root, int profondita) throws NoSuchAlgorithmException{
+    public Node buildTree (Node root, int profondita) throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
         Node current = root;
-        
-        for (int i = 0 ; i < profondita; i++){
-            
+     
+        int y = 0;
+        System.out.println("\n\n i" + y );
+        int z = 0;
+        Node tmp2 = search(current, y , z);
+        System.out.println("APPLICO F0 al nodo riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
+        f0(tmp2,y+1,z*2);  
+        System.out.println("APPLICO F1 riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
+        f1(tmp2,y+1,z*2+1); 
 
-            if ( i == 0){
-                
-                System.out.println("\n\n i" + i );
-                int k = 0;
-                Node tmp = search(current, i , k);
-                System.out.println("APPLICO F0 al nodo riga-colonna" + tmp.riga+ "-"+ tmp.pos);
-                f0(tmp,i+1,k*2);  
-                System.out.println("APPLICO F1 riga-colonna" + tmp.riga+ "-"+ tmp.pos);
-                f1(tmp,i+1,k*2+1); 
-                
-            }
-                
+            
+       
+        
+        for (int i = 1 ; i < profondita; i++){
             
             int nNode = (int) Math.pow(2, i);
             
@@ -123,7 +148,7 @@ public class BinaryTree {
     }
    
     public static byte[] addOne(byte[] A) {
-        for (int i = A.length - 1; i >= 0; i--) {
+/*        for (int i = A.length - 1; i >= 0; i--) {
             if (A[i] == 0) {
                 A[i] = 1;
                 return A;
@@ -134,7 +159,7 @@ public class BinaryTree {
                 Arrays.fill(A, (byte) 0); // Added cast to byte
                 A[0] = 1;
             }
-        }
+        }*/
         return A;
     }
     
@@ -190,5 +215,25 @@ public class BinaryTree {
         }
     }
     
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+        String hex = Integer.toHexString(0xff & hash[i]);
+        if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
     
+    private byte[] incrementAtIndex(byte[] array, int index) {
+        if (array[index] == 127) {
+            array[index] = 0;
+            if(index > 0)
+                incrementAtIndex(array, index - 1);
+        }
+        else {
+            array[index]++;
+        }
+        return array;
+    }
 }
