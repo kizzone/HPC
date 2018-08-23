@@ -63,7 +63,7 @@ public class Node {
 		//System.out.println("Node["+node_addr+"]: received: "+new String(pkt.getData(),0,pkt.getLength()));
                 
                 
-                //-------------------------------------------cosa nostra-----------------------------
+                //-------------------------------------------Mandar la richiesta di join-----------------------------
                 //System.out.println ("Ip4layer " + ip.toString());//DEBUG
                 JoinReq richiesta = new JoinReq(5,ip.toString());
                 byte[] msgToSend = richiesta.toString().getBytes();

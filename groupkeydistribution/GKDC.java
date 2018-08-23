@@ -81,7 +81,7 @@ public class GKDC {
                                 Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             System.out.println( ANSI_GREEN + "GKDC received a new join request : " + new String(pktrcv.getData(),0,pktrcv.getLength())+ "\n creating JOIN - RESPONSE " +  ANSI_RESET);
-                            //creating join response
+                            //TODO creating join response
                             
                             //sending join response 
                             
@@ -93,14 +93,14 @@ public class GKDC {
         
                 System.out.println("END OF GDKC CONSTRUCTOR ");
                 
-                /*=============================per adesso ho commentato spero funzioni con il thread
+                /*=============================per adesso ho commentato spero funzioni con il thread anche se c'è da capire come funzionerà con gli slot temporali
                 
 		byte[] buf=new byte[1024];
 		DatagramPacket pktrcv =new DatagramPacket(buf,buf.length);
 		//System.out.println("Node["+ip_addr+"]: listening");
                 
                 
-                // ===============================  QUA MI SA CHE CI VOGLIONO I THREAD ===============================================
+                // =============================================================================
                 for (int i = 0; i < 4 ; i++){
                     	management_sock.receive(pktrcv);
                         System.out.println( ANSI_GREEN + "GKDC received: " + new String(pktrcv.getData(),0,pktrcv.getLength())+ ANSI_RESET);

@@ -6,7 +6,7 @@
 package messages;
 
 /**
- *
+ * messaggio di join che un nodo manda al kdc 
  * @author D&D
  */
 
@@ -28,7 +28,7 @@ public class JoinReq {
         this.ipAdress = ipAdress;
     }
     
-    //===========================da controllare er bene
+    //===========================
     @Override
     public String toString(){
         return this.getIpAdress() + "&" + this.getTimeSlot();

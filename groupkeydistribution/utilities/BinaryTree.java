@@ -15,17 +15,28 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * 
+ * Rappresenta l'albero binario delle chiavi da utilizzare nei vari intervalli temporali
  * @author D&D
+ * 
  */
 
 public class BinaryTree {
     
     Node root;
 
+    
+    
     public Node getRoot() {
         return root;
     }
+    
+    
+    /**
+     * 
+     * Costruttore dell'albero binario crea un nodo radice con una chiave (hash di random byte) 
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException 
+     */
     
     public BinaryTree() throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
@@ -43,7 +54,13 @@ public class BinaryTree {
     
     
     
-    //
+    /**
+     * 
+     * Funzione f0 utilizzata per collegare al ramo di sinistra di un nodo passato come parametro un nuovo nodo con chiave hash dell'array di byte del nodo passato
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException 
+     */
+    
     public void f0 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
         String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));
@@ -56,6 +73,13 @@ public class BinaryTree {
         current.left =  newNode;
         
     }
+    
+    /**
+     * 
+     * Funzione f1 utilizzata per collegare al ramo di destra di un nodo passato come parametro un nuovo nodo con chiave hash dell'array di byte  incrementato 
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException 
+     */
     public void f1 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
     	
         String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));        
@@ -69,7 +93,12 @@ public class BinaryTree {
        
     }
     
-          
+   /**
+     * 
+     * Ricerca di un nodo di "righe" e "colonne" nell'albero
+     * utilizzato in fase di costruzione dell'albero delle chiavi
+     * 
+     */
     private Node search(Node node,int h, int p){
         if(node != null){
             if(node.pos == p && node.riga == h){
@@ -89,8 +118,17 @@ public class BinaryTree {
     } 
     
     //da sistemare
+    
+    /**
+     * BuilTree prende in ingresso un nodo da considerare radice dell'albero e un intero che rappresenta la profondatità e costruisce un albero di chiavi con f0 e f1 
+     * è brutta da vedere ma va sistemata ancora
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException 
+     */
+    
+    
     public Node buildTree (Node root, int profondita) throws NoSuchAlgorithmException, UnsupportedEncodingException{
-        
+     //* è brutta da vedere ma va sistemata ancora   
         Node current = root;
         int y = 0;
         System.out.println("\n\n i" + y );
@@ -163,6 +201,8 @@ public class BinaryTree {
         }
         return hexString.toString();
     }
+    
+    
     
     private byte[] incrementAtIndex(byte[] array, int index) {
         if (array[index] == 127) {

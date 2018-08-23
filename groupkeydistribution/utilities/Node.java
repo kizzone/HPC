@@ -8,7 +8,7 @@ package groupkeydistribution.utilities;
 import java.util.Random;
 
 /**
- *
+ * classe nodo dell'albero ha come parametri una chiave 2 interi che rappresentano la posizione che occupa il nodo nell'albero e i nodi di sx e dx
  * @author D&D
  */
 public class Node {
