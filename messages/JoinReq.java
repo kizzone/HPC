@@ -7,7 +7,7 @@ package messages;
 
 /**
  *
- * @author domenico & domenico
+ * @author D&D
  */
 
 public class JoinReq {

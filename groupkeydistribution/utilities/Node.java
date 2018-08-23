@@ -9,7 +9,7 @@ import java.util.Random;
 
 /**
  *
- * @author domenico
+ * @author D&D
  */
 public class Node {
     

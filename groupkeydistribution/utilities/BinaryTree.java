@@ -16,7 +16,7 @@ import java.util.Random;
 
 /**
  * 
- * @author domenico
+ * @author D&D
  */
 
 public class BinaryTree {
@@ -30,11 +30,6 @@ public class BinaryTree {
     public BinaryTree() throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
         this.root =  new Node();
-/*      new Random().nextBytes(this.root.getX00());
-        MessageDigest msg = MessageDigest.getInstance("MD5");
-        msg.update(this.root.getX00());
-        this.root.setX00(msg.digest().toString().getBytes("UTF-8"));*/
-        
         byte[] array = new byte[16]; // length is bounded by 7
         new Random().nextBytes(array);
         String generatedString = new String(array, Charset.forName("UTF-8"));
@@ -50,11 +45,10 @@ public class BinaryTree {
     
     //
     public void f0 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
-        String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));
         
+        String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));
         MessageDigest digest = MessageDigest.getInstance("MD5");
         byte[] encodedhash = digest.digest(generatedString.getBytes("UTF-8"));
-        
         Node newNode = new Node();
         newNode.setX00( encodedhash );
         newNode.riga = riga;
@@ -63,22 +57,10 @@ public class BinaryTree {
         
     }
     public void f1 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
-        
-        /*MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-        
-        messageDigest.update( addOne(current.getX00() ) );
-        String encryptedString = messageDigest.digest().toString();
-        Node newNode = new Node();
-        newNode.setX00( encryptedString.getBytes("UTF-8") );
-        newNode.riga = riga;
-        newNode.pos  = pos;
-        current.right =  newNode;*/
     	
-        String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));
-        
+        String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));        
         MessageDigest digest = MessageDigest.getInstance("MD5");
         byte[] encodedhash = digest.digest(incrementAtIndex(generatedString.getBytes("UTF-8"),0));
-        
         Node newNode = new Node();
         newNode.setX00( encodedhash );
         newNode.riga = riga;
@@ -89,31 +71,27 @@ public class BinaryTree {
     
           
     private Node search(Node node,int h, int p){
-    if(node != null){
-        if(node.pos == p && node.riga == h){
-           System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
-           return node;
+        if(node != null){
+            if(node.pos == p && node.riga == h){
+               System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
+               return node;
+            } else {
+                System.out.println("Non è il nodo che stai cercando semicit. RIGA: " +  node.riga + "POS "+ node.pos);
+                Node foundNode = search(node.left,h,p);
+                if(foundNode == null) {
+                    foundNode = search(node.right,h,p);
+                }
+                return foundNode;
+             }
         } else {
-            System.out.println("Non è il nodo che stai cercando semicit. RIGA: " +  node.riga + "POS "+ node.pos);
-            Node foundNode = search(node.left,h,p);
-            if(foundNode == null) {
-                foundNode = search(node.right,h,p);
-            }
-            return foundNode;
-         }
-    } else {
-        return null;
-    }
-}
+            return null;
+        }
+    } 
     
-    
-    
-    
-    
+    //da sistemare
     public Node buildTree (Node root, int profondita) throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
         Node current = root;
-     
         int y = 0;
         System.out.println("\n\n i" + y );
         int z = 0;
@@ -122,9 +100,6 @@ public class BinaryTree {
         f0(tmp2,y+1,z*2);  
         System.out.println("APPLICO F1 riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
         f1(tmp2,y+1,z*2+1); 
-
-            
-       
         
         for (int i = 1 ; i < profondita; i++){
             
@@ -146,24 +121,7 @@ public class BinaryTree {
         }
         return root;
     }
-   
-    public static byte[] addOne(byte[] A) {
-/*        for (int i = A.length - 1; i >= 0; i--) {
-            if (A[i] == 0) {
-                A[i] = 1;
-                return A;
-            }
-            A[i] = 0;
-            if (i == 0) {
-                A = new byte[A.length + 1];
-                Arrays.fill(A, (byte) 0); // Added cast to byte
-                A[0] = 1;
-            }
-        }*/
-        return A;
-    }
-    
-    
+       
     public void traverseInOrder(Node node) {
         
         if (node != null) {
@@ -174,27 +132,8 @@ public class BinaryTree {
         
     }
     
-    public Node add (Node root, Object value ){
-        /*
-        
-        if ( root == null )
-            return new Node(value);
-        // da errore per adesso si aggiusta quando capisco che ci va dentro l'albero, lol
-        if( value < root.value ){
-            root.left = add(root.left, value);
-        }
-        else if( value > root.value ){
-            root.right = add(root.right, value);
-        }else{
-            return root;
-        }
-       
-        return root; 
-     */   
-        return null;
-    }
-    
-        public Node traversePreOrder(Node node,int h, int p) {
+/* non serve per il momento
+    public Node traversePreOrder(Node node,int h, int p) {
         
         //System.out.println("Da ricercare riga-posizione" + h +"-"+ p);
         if (node == null) {
@@ -214,7 +153,7 @@ public class BinaryTree {
         return node;
         }
     }
-    
+*/    
     private static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {

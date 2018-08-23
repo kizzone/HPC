@@ -7,11 +7,12 @@ import it.unipr.netsec.ipstack.ip4.Ip4AddressPrefix;
 import it.unipr.netsec.ipstack.ip4.Ip4Prefix;
 import it.unipr.netsec.ipstack.util.IpAddressUtils;
 import it.unipr.netsec.nemo.ip.IpLink;
+import java.security.NoSuchAlgorithmException;
 
 
 public class Main {
 
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException {
 		
 		IpLink network=new IpLink(new Ip4Prefix("10.1.1.0/24"));
 		// GKDC address = 10.1.1.254
