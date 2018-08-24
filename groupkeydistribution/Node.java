@@ -40,7 +40,7 @@ public class Node {
 		DatagramSocket management_sock=new DatagramSocket(udp,GKDC.MANAGEMENT_PORT);
 		DatagramSocket data_sock=new DatagramSocket(udp,GKDC.DATA_PORT);
 		
-                
+                //===================anche il nodo dovrebbe avere un thread che gestisce i messaggi DATA che riceve dal GKDC========================
                 
 
                 

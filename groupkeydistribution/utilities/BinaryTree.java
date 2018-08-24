@@ -99,7 +99,7 @@ public class BinaryTree {
      * utilizzato in fase di costruzione dell'albero delle chiavi
      * 
      */
-    private Node search(Node node,int h, int p){
+    public Node search(Node node,int h, int p){
         if(node != null){
             if(node.pos == p && node.riga == h){
                System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
