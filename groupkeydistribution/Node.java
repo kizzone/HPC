@@ -66,7 +66,7 @@ public class Node {
                 
                 
                 //-------------------------------------------Mandar la richiesta di join-----------------------------
-                
+                // per il momento tutti i nodi inviano dopo 15 secodni la stessa richiesta nello stesso slot temporale
                  Thread.sleep(15000);
                 //System.out.println ("Ip4layer " + ip.toString());//DEBUG
                 JoinReq richiesta = new JoinReq(4,ip.toString());
@@ -78,7 +78,7 @@ public class Node {
                 Thread.sleep(randomNum * 1000);
                 timeSlots tS = new timeSlots();
                 //=====================================================================
-   */             
+                */             
                 //messo pure qua lo slot temporale per provare
                 DatagramPacket pkt2 =new DatagramPacket(msgToSend,msgToSend.length, point_addr ,GKDC.MANAGEMENT_PORT);
                 System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData())/*+ "in the time slot "+ tS.getValue()*/ + ANSI_RESET);

@@ -6,11 +6,9 @@
 package groupkeydistribution.utilities;
 
 /**
- *
+ * classe utilizzata per criptare in maniera simmetrica un dato messaggio
  * @author domenico
  */
-
-
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;

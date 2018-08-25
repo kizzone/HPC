@@ -17,8 +17,6 @@ public class Node {
     private byte[] x00 = new byte[16];
     public int riga;
     public int pos;
-
-
     protected Node left;
     protected Node right;
 

@@ -72,7 +72,7 @@ public class GKDC {
                 
                 bT.traverseInOrder(node);
                 
-                //===============================ultima modifica con thread
+                //===============================il thread management si occupa di ricevere le richieste di JOIN e rispondere con eventuale messaggio di RESPONSE
                 
                 Thread managementThread = new Thread("management") {
                 @Override
@@ -84,7 +84,7 @@ public class GKDC {
                         
                         while(true){
                             try {
-                                //la receuve dovrebbe essere bloccante
+                                //la receive dovrebbe essere bloccante
                                 management_sock.receive(pktrcv);
                             } catch (IOException ex) {
                                 Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
@@ -96,15 +96,16 @@ public class GKDC {
                             int finalInt = Integer.parseInt(arr[1]);
                             int initInt = tS.getValue();
                             ArrayList<Node> nodeList = new ArrayList<Node>();
-                            System.out.println("Sono stati richiesti chiavi dall'intevallo " + initInt +1  + "-" + (initInt + finalInt) );
+                            System.out.println("Sono stati richiesti chiavi dall'intevallo " + (initInt +1 ) + "-" + (initInt + finalInt) );
                             nodeList =  bT.getKeySet(bT  ,   initInt +1 , initInt + finalInt );
                             
                             for ( Node e : nodeList) {
-                                System.out.println( "Devo mandarti le chiavi di riga "+ e.riga +"e posizione: " + e.pos );
+                                System.out.println( "Devo mandarti le chiavi di riga "+ e.riga +" e posizione: " + e.pos );
                                 
                             }
 
-                            //sending join response 
+                            //sending join response to node arr[0]
+                            
                             
                         }                                    
                     }
@@ -112,16 +113,15 @@ public class GKDC {
                 managementThread.start();
                 
                 
-                //periodicamente in un iperperiodo slotTemporali il Gkdc invia dei messaggi data in chiaro contenti l'id dello slot temporale e criptato il messaggio verso i nodi
-                // bisogna trovare un modo di far diventare la variabile i condivisa in modo che anche il manadgment thread sa che intervallo temporale è
-                
+                //periodicamente in un iperperiodo slotTemporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
+                                
                 for ( tS.setValue(0); tS.getValue() < slotTemporali; tS.increment() ){
                     
                     byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
                     Encryption en = new Encryption( bT.search(bT.getRoot(),profonditaAlbero ,tS.getValue() ).getX00());
                     byte[] cipherText = en.encrypt(messaggioSuperSegreto);
                     Data msgData = new Data(cipherText, tS.getValue() );
-                    System.out.println(msgData.toStringato());
+                    //System.out.println("DEBUG messaggio generato: " + msgData.toStringato()); //funziona: è lo stesso messaggio
                     //beccare la lungheza di msgData.toString()
                     DatagramPacket criptoPkt=new DatagramPacket(msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
                     System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(criptoPkt.getData(),0,criptoPkt.getLength()) + ANSI_RESET );
@@ -129,14 +129,8 @@ public class GKDC {
                     Thread.sleep(1000*10);
 
                 }
-
+                
                 System.out.println("END OF GDKC CONSTRUCTOR ");
-                
-                
-                
-                
-                
-             
                 //======================================== VELTRI=======================================
 		/*msg="join".getBytes();
 		pkt=new DatagramPacket(msg,msg.length,Inet4Address.getByName("10.1.1.1"),MANAGEMENT_PORT);

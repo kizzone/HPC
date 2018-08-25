@@ -8,6 +8,8 @@ import it.unipr.netsec.ipstack.ip4.Ip4Prefix;
 import it.unipr.netsec.ipstack.util.IpAddressUtils;
 import it.unipr.netsec.nemo.ip.IpLink;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Main {
@@ -27,7 +29,9 @@ public class Main {
 					}
 					catch (IOException e) {
 						e.printStackTrace();
-					}
+					} catch (InterruptedException ex) {
+                                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
 				}
 			}.start();
 			Thread.sleep(100);

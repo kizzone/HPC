@@ -6,7 +6,7 @@
 package groupkeydistribution.utilities;
 
 /**
- *
+ *  Classe utilizzata per simulare uno slot temporale in maniera protetta così da non avere interferenza tra i thread
  * @author domenico
  */
 

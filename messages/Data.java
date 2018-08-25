@@ -8,7 +8,7 @@ package messages;
 import java.util.Arrays;
 
 /**
- *
+ *  Rappresenta il messaggio DATA che i GDKC periodicamente genera ed invia ad i nodi del gruppo
  * @author domenico
  */
 public class Data {

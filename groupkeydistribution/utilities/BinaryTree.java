@@ -49,8 +49,8 @@ public class BinaryTree {
         MessageDigest digest = MessageDigest.getInstance("MD5");
         byte[] encodedhash = digest.digest(generatedString.getBytes("UTF-8"));
         root.setX00(encodedhash);
-        System.out.println("ahhhhhhh " + bytesToHex(encodedhash));
-        System.out.println("ribalto " + bytesToHex(generatedString.getBytes("UTF-8")));
+        //System.out.println("ahhhhhhh " + bytesToHex(encodedhash));
+        //System.out.println("ribalto " + bytesToHex(generatedString.getBytes("UTF-8")));
     }
     
     
@@ -132,12 +132,12 @@ public class BinaryTree {
      //* è brutta da vedere ma va sistemata ancora   
         Node current = root;
         int y = 0;
-        System.out.println("\n\n i" + y );
+       // System.out.println("\n\n i" + y );
         int z = 0;
         Node tmp2 = search(current, y , z);
-        System.out.println("APPLICO F0 al nodo riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
+        //System.out.println("APPLICO F0 al nodo riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
         f0(tmp2,y+1,z*2);  
-        System.out.println("APPLICO F1 riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
+        //System.out.println("APPLICO F1 riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
         f1(tmp2,y+1,z*2+1); 
         
         for (int i = 1 ; i < profondita; i++){
@@ -146,14 +146,13 @@ public class BinaryTree {
             
             for (int k = 0; k < nNode ; k++){
                 
-                System.out.println("\n\n i-j" + i +" "+ k);
-                System.out.println("riga da ricercare: " + i + " posizione da ricercare: " + k );
+                //System.out.println("\n\n i-j" + i +" "+ k);
+                //System.out.println("riga da ricercare: " + i + " posizione da ricercare: " + k );
                 Node tmp = search(current, i , k);
-                System.out.println("APPLICO F0 al nodo riga-colonna" + tmp.riga+ "-"+ tmp.pos);
+                //System.out.println("APPLICO F0 al nodo riga-colonna" + tmp.riga+ "-"+ tmp.pos);
                 f0(tmp,i+1,k*2);  
-                System.out.println("APPLICO F1 riga-colonna" + tmp.riga+ "-"+ tmp.pos);
+                //System.out.println("APPLICO F1 riga-colonna" + tmp.riga+ "-"+ tmp.pos);
                 f1(tmp,i+1,k*2+1); 
-                
                 
             }
       
@@ -171,28 +170,6 @@ public class BinaryTree {
         
     }
     
-/* non serve per il momento
-    public Node traversePreOrder(Node node,int h, int p) {
-        
-        //System.out.println("Da ricercare riga-posizione" + h +"-"+ p);
-        if (node == null) {
-            return null;
-        }
-        else{
-            
-            if ( h == node.riga && p == node.pos){
-                System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
-                return node;
-            }
-            else{
-                 traversePreOrder(node.left,h+1,p);
-                 traversePreOrder(node.right,h+1,p);
-            }
-       
-        return node;
-        }
-    }
-*/    
     public static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
@@ -204,7 +181,7 @@ public class BinaryTree {
     }
     
     
-    
+    //aumenta l'array di byte 
     private byte[] incrementAtIndex(byte[] array, int index) {
         if (array[index] == 127) {
             array[index] = 0;
@@ -217,7 +194,13 @@ public class BinaryTree {
         return array;
     }
     
-    
+    /**
+     * Metodo utilizzato per restituire il miglior Key set per una data richiesta di un nodo per un certo intervallo
+     * @param b albero di chiavi
+     * @param initInt inizio intervallo
+     * @param endInt    fine intervallo
+     * @return ArrayList<Node>  che rappresenta i nodi contenti le chiavi per il dato intervallo
+     */
     public ArrayList<Node> getKeySet(BinaryTree b, int initInt, int endInt) {
         
         //==========================andrà sostituito con get profondità albero
@@ -272,14 +255,14 @@ public class BinaryTree {
     }
     
     private int getPrevPos(Node n) {
-     int result = n.pos % 2 == 0 ? n.pos/2 :  (n.pos-1)/2;
      
-     return result;
+        int result = n.pos % 2 == 0 ? n.pos/2 :  (n.pos-1)/2;
+        return result;
     }
      
     
     
-    // da sistemare perchè serve nella funzione delle chiavi
+    // pecca la profondità dell'albero
     public int maxDepth(Node node) {
        if (node == null) {
            return (-1); // an empty tree  has height −1
