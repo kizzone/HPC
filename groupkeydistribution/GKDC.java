@@ -4,6 +4,7 @@ package groupkeydistribution;
 import groupkeydistribution.utilities.BinaryTree;
 import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.Node;
+import groupkeydistribution.utilities.timeSlots;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.Inet4Address;
@@ -19,6 +20,7 @@ import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import messages.Data;
@@ -36,14 +38,18 @@ public class GKDC {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
-
-	public static final int MANAGEMENT_PORT=4001;
-
-	public static final int DATA_PORT=4000;
+    public static final int MANAGEMENT_PORT=4001;
+    public static final int DATA_PORT=4000;
+    
+    
 	
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
 	public GKDC(IpLink network, Ip4AddressPrefix gkdc_addr) throws IOException, NoSuchAlgorithmException, Exception {
 		// create virtual IP STACK
+                //intero che rappresenta lo slot temporale
+                timeSlots tS = new timeSlots();
+                //gestito dalla classe per motivi di synch non so se si fa cosi
+                
 		Ip4Layer ip=new Ip4Layer(new NetInterface[]{new IpLinkInterface(network,gkdc_addr)});
 		UdpLayer udp=new UdpLayer(ip);
 		
@@ -83,9 +89,21 @@ public class GKDC {
                             } catch (IOException ex) {
                                 Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                            System.out.println( ANSI_GREEN + "GKDC received a new join request : " + new String(pktrcv.getData(),0,pktrcv.getLength())+ "\n creating JOIN - RESPONSE " +  ANSI_RESET);
+                            System.out.println( ANSI_GREEN + "GKDC received a new join request : " + new String(pktrcv.getData(),0,pktrcv.getLength())+"  in time intervall "+ tS.getValue()  +"\n creating JOIN - RESPONSE " +  ANSI_RESET);
                             //TODO creating join response
-                         
+                            String str = new String(pktrcv.getData(),0,pktrcv.getLength());
+                            String [] arr = str.split("&");
+                            int finalInt = Integer.parseInt(arr[1]);
+                            int initInt = tS.getValue();
+                            ArrayList<Node> nodeList = new ArrayList<Node>();
+                            System.out.println("Sono stati richiesti chiavi dall'intevallo " + initInt +1  + "-" + (initInt + finalInt) );
+                            nodeList =  bT.getKeySet(bT  ,   initInt +1 , initInt + finalInt );
+                            
+                            for ( Node e : nodeList) {
+                                System.out.println( "Devo mandarti le chiavi di riga "+ e.riga +"e posizione: " + e.pos );
+                                
+                            }
+
                             //sending join response 
                             
                         }                                    
@@ -95,23 +113,29 @@ public class GKDC {
                 
                 
                 //periodicamente in un iperperiodo slotTemporali il Gkdc invia dei messaggi data in chiaro contenti l'id dello slot temporale e criptato il messaggio verso i nodi
+                // bisogna trovare un modo di far diventare la variabile i condivisa in modo che anche il manadgment thread sa che intervallo temporale è
                 
-                for ( int i = 0; i < slotTemporali; i++ ){
+                for ( tS.setValue(0); tS.getValue() < slotTemporali; tS.increment() ){
                     
                     byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
-                    Encryption en = new Encryption( bT.search(bT.getRoot(),profonditaAlbero ,i).getX00());
+                    Encryption en = new Encryption( bT.search(bT.getRoot(),profonditaAlbero ,tS.getValue() ).getX00());
                     byte[] cipherText = en.encrypt(messaggioSuperSegreto);
-                    Data msgData = new Data(cipherText, i);
+                    Data msgData = new Data(cipherText, tS.getValue() );
                     System.out.println(msgData.toStringato());
                     //beccare la lungheza di msgData.toString()
                     DatagramPacket criptoPkt=new DatagramPacket(msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
-                    System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(pkt.getData(),0,pkt.getLength()) + ANSI_RESET );
+                    System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(criptoPkt.getData(),0,criptoPkt.getLength()) + ANSI_RESET );
                     data_sock.send(criptoPkt);
                     Thread.sleep(1000*10);
 
                 }
 
                 System.out.println("END OF GDKC CONSTRUCTOR ");
+                
+                
+                
+                
+                
              
                 //======================================== VELTRI=======================================
 		/*msg="join".getBytes();

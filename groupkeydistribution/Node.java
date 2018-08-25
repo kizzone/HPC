@@ -1,6 +1,7 @@
 package groupkeydistribution;
 
 
+import groupkeydistribution.utilities.timeSlots;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
@@ -16,6 +17,7 @@ import it.unipr.netsec.nemo.ip.IpLinkInterface;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 import messages.JoinReq;
 
 
@@ -32,7 +34,7 @@ public class Node {
         public static final String ANSI_WHITE = "\u001B[37m";
 
     
-	public Node(IpLink network, Ip4Address gkdc_addr) throws IOException {
+	public Node(IpLink network, Ip4Address gkdc_addr) throws IOException, InterruptedException {
 		Ip4AddressPrefix node_addr=(Ip4AddressPrefix)network.nextAddressPrefix();
 		// create virtual IP STACK
 		Ip4Layer ip = new Ip4Layer(new NetInterface[]{new IpLinkInterface(network,node_addr)});
@@ -64,12 +66,22 @@ public class Node {
                 
                 
                 //-------------------------------------------Mandar la richiesta di join-----------------------------
+                
+                 Thread.sleep(15000);
                 //System.out.println ("Ip4layer " + ip.toString());//DEBUG
-                JoinReq richiesta = new JoinReq(5,ip.toString());
+                JoinReq richiesta = new JoinReq(4,ip.toString());
                 byte[] msgToSend = richiesta.toString().getBytes();
                 InetAddress point_addr = Inet4Address.getByName("10.1.1.254") ; 
+                /*
+                //================solo per prova da modificare=========================
+                int randomNum = ThreadLocalRandom.current().nextInt(0, 5 + 1);
+                Thread.sleep(randomNum * 1000);
+                timeSlots tS = new timeSlots();
+                //=====================================================================
+   */             
+                //messo pure qua lo slot temporale per provare
                 DatagramPacket pkt2 =new DatagramPacket(msgToSend,msgToSend.length, point_addr ,GKDC.MANAGEMENT_PORT);
-                System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData()) + ANSI_RESET);
+                System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData())/*+ "in the time slot "+ tS.getValue()*/ + ANSI_RESET);
                 management_sock.send(pkt2);
                 
                 //-----------------------------------------------------------------------------------

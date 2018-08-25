@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException {
+	public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException, Exception {
 		
 		IpLink network=new IpLink(new Ip4Prefix("10.1.1.0/24"));
 		// GKDC address = 10.1.1.254
@@ -20,6 +20,7 @@ public class Main {
 		
 		for (int i=0; i<4; i++) {
 			new Thread() {
+                                @Override
 				public void run() {
 					try {
 						new Node(network,gkdc_addr);

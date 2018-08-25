@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -102,10 +103,10 @@ public class BinaryTree {
     public Node search(Node node,int h, int p){
         if(node != null){
             if(node.pos == p && node.riga == h){
-               System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
+              // System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
                return node;
             } else {
-                System.out.println("Non è il nodo che stai cercando semicit. RIGA: " +  node.riga + "POS "+ node.pos);
+              // System.out.println("Non è il nodo che stai cercando semicit. RIGA: " +  node.riga + "POS "+ node.pos);
                 Node foundNode = search(node.left,h,p);
                 if(foundNode == null) {
                     foundNode = search(node.right,h,p);
@@ -192,7 +193,7 @@ public class BinaryTree {
         }
     }
 */    
-    private static String bytesToHex(byte[] hash) {
+    public static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
         String hex = Integer.toHexString(0xff & hash[i]);
@@ -215,4 +216,87 @@ public class BinaryTree {
         }
         return array;
     }
+    
+    
+    public ArrayList<Node> getKeySet(BinaryTree b, int initInt, int endInt) {
+        
+        //==========================andrà sostituito con get profondità albero
+        int profonditaAlbero = b.maxDepth(b.getRoot()) ;
+        //==========================andrà sostituito con get profondità albero
+        
+        int totNodes = (int) Math.pow(2, profonditaAlbero);
+        //System.out.println("Numero di nodi sull'ultima riga: " + totNodes);
+        
+        
+        ArrayList<Node> nodeList = new ArrayList<Node>();
+        for(int i = initInt; i <= endInt; i++) {
+         nodeList.add( b.search(b.getRoot(), profonditaAlbero, i) );
+        }
+        
+        for( Node elem : nodeList) {
+         //System.out.println("Nodo: "+ elem.riga + elem.pos);
+        }
+        
+        int oldLength = 0;
+        
+        while(nodeList.size() != oldLength ) {
+         //System.out.println("Giro di unione");
+         oldLength = nodeList.size();
+         
+         for(int i = 0; i < nodeList.size()-1; i++) {
+          
+          Node curr = nodeList.get(i);
+          Node next = nodeList.get(i+1);
+          
+          String prevCurr = String.valueOf(curr.riga) + String.valueOf(getPrevPos(curr)+1);
+          String prevNext = String.valueOf(next.riga) + String.valueOf(getPrevPos(next)+1);
+          
+          
+          //System.out.println("prevCurr " + prevCurr );
+          //System.out.println("prevNext " + prevNext );
+          
+          if(prevCurr.equals(prevNext)) {
+           nodeList.add(i, b.search(b.getRoot(), curr.riga-1, getPrevPos(curr)) );
+           nodeList.remove(curr);
+           nodeList.remove(next);
+          }
+         }
+         
+        }
+        
+        for( Node elem : nodeList) {
+         System.out.println("Nodo: "+ elem.riga + elem.pos);
+        }
+     
+     return nodeList;
+    }
+    
+    private int getPrevPos(Node n) {
+     int result = n.pos % 2 == 0 ? n.pos/2 :  (n.pos-1)/2;
+     
+     return result;
+    }
+     
+    
+    
+    // da sistemare perchè serve nella funzione delle chiavi
+    public int maxDepth(Node node) {
+       if (node == null) {
+           return (-1); // an empty tree  has height −1
+       } else {
+           // compute the depth of each subtree
+           int leftDepth = maxDepth(node.left);
+           int rightDepth = maxDepth(node.right);
+           // use the larger one
+           if (leftDepth > rightDepth )
+               return (leftDepth + 1);
+           else
+               return (rightDepth + 1);
+       }
+   }
+   
+    
+    
+    
+    
 }
