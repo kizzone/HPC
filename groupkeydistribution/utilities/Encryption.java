@@ -44,8 +44,7 @@ public class Encryption {
      *
      * @param cipherText The data to decrypt
      */
-    public static byte[] decrypt(byte[] cipherText) throws Exception
-    {
+    public static byte[] decrypt(byte[] cipherText) throws Exception{
         SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey);

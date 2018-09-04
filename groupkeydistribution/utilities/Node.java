@@ -42,7 +42,7 @@ public class Node implements Serializable{
     
     @Override
     public String toString() {
-    	return "Key: " + Arrays.toString(this.x00) + " row-" + this.riga  + " pos-" + this.pos;  
+    	return "Key: " + Arrays.toString(this.x00) + " row: " + this.riga  + " pos: " + this.pos;  
     }
 
 }

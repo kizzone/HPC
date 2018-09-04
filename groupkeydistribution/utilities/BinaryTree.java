@@ -346,8 +346,9 @@ public class BinaryTree {
     		BinaryTree tmpTree = new BinaryTree(e);
     		tmpTree.buildTree(tmpTree.getRoot(), e.riga, depth);
 
-    		System.out.println(" Mini - Khalifa");
+    		System.out.println(" Derivo le chiavi da: X" + e.riga + e.pos );
     		//System.out.println( (tmpTree.search( tmpTree.getRoot(), d )).pos );
+    		
     		int i = (tmpTree.search( tmpTree.getRoot(), depth )).pos;
     		while( tmpTree.search( tmpTree.getRoot(), depth, i ) != null ) {
     			System.out.println( tmpTree.search( tmpTree.getRoot(), depth, i ).toString() );
