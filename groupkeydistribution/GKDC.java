@@ -140,8 +140,7 @@ public class GKDC {
                     Data msgData = new Data(cipherText, tS.getValue() );
                     //System.out.println("DEBUG messaggio generato: " + msgData.toStringato()); //funziona: è lo stesso messaggio
                     //beccare la lungheza di msgData.toString()
-                    
-                    
+
                     
                     //DatagramPacket criptoPkt=new DatagramPacket(    msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
                     // riga di sopra funzionava

@@ -25,12 +25,12 @@ public class Main {
                                 @Override
 				public void run() {
 					try {  
-                                            new Node(network,gkdc_addr);
+						new Node(network,gkdc_addr);
 					}
 					catch (IOException e) {
 					} catch (InterruptedException | ClassNotFoundException ex) {
-                                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 				}
 			}.start();
 			Thread.sleep(100);

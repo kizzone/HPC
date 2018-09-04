@@ -48,7 +48,7 @@ public class JoinResp implements java.io.Serializable{
     //stampa le chiavi ricevute
     public void receivedKey(){
         for ( Node e : this.getKeySet()) {
-            System.out.println( "chiavi di riga "+ e.riga +" e posizione: " + e.pos + "valore : " +  Arrays.toString(e.getX00()));  
+            System.out.println( "chiavi di riga "+ e.riga +" e posizione:" + e.pos + "valore:" +  Arrays.toString(e.getX00()));  
         }
     }
     
