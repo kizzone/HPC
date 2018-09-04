@@ -18,12 +18,17 @@ import it.unipr.netsec.ipstack.udp.DatagramSocket;
 import it.unipr.netsec.ipstack.udp.UdpLayer;
 import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
+import java.io.Serializable;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import messages.Data;
+import messages.JoinResp;
+import org.apache.commons.lang.SerializationUtils;
 
 
 public class GKDC {
@@ -40,15 +45,13 @@ public class GKDC {
     public static final String ANSI_WHITE = "\u001B[37m";
     public static final int MANAGEMENT_PORT=4001;
     public static final int DATA_PORT=4000;
-    
-    
-	
+
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
 	public GKDC(IpLink network, Ip4AddressPrefix gkdc_addr) throws IOException, NoSuchAlgorithmException, Exception {
 		// create virtual IP STACK
-                //intero che rappresenta lo slot temporale
+                //rappresenta lo slot temporale,gestito da una classe per motivi di synch 
                 timeSlots tS = new timeSlots();
-                //gestito dalla classe per motivi di synch non so se si fa cosi
+                
                 
 		Ip4Layer ip=new Ip4Layer(new NetInterface[]{new IpLinkInterface(network,gkdc_addr)});
 		UdpLayer udp=new UdpLayer(ip);
@@ -62,14 +65,11 @@ public class GKDC {
 		System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(pkt.getData(),0,pkt.getLength()) + ANSI_RESET );
 		data_sock.send(pkt);
 
+                //inizializzazione albero chiavi
                 BinaryTree bT = new BinaryTree();
-                
                 int profonditaAlbero = 3;
                 groupkeydistribution.utilities.Node node = bT.buildTree(bT.getRoot(),profonditaAlbero);
-                
                 int slotTemporali = (int) Math.pow(2, profonditaAlbero);
-                
-                
                 bT.traverseInOrder(node);
                 
                 //===============================il thread management si occupa di ricevere le richieste di JOIN e rispondere con eventuale messaggio di RESPONSE
@@ -100,13 +100,30 @@ public class GKDC {
                             nodeList =  bT.getKeySet(bT  ,   initInt +1 , initInt + finalInt );
                             
                             for ( Node e : nodeList) {
-                                System.out.println( "Devo mandarti le chiavi di riga "+ e.riga +" e posizione: " + e.pos );
+                                System.out.println( "Devo mandare a " + arr[0] + " le chiavi di riga "+ e.riga +" e posizione: " + e.pos );
                                 
                             }
-
+                            
                             //sending join response to node arr[0]
+                            JoinResp response = new JoinResp(  nodeList );
+                            String addr = GKDC.getAddress( arr[0] );
+                            System.out.println("indirizzo : " + addr);
+                            try {
+                                InetAddress resp_addr = Inet4Address.getByName(addr); //questo non gli piace
+                                //InetAddress response_addr = Inet4Address.getByName("10.1.1.254") ;
+                                //
+                                byte[] data = SerializationUtils.serialize((Serializable) response); 
+                                DatagramPacket pkt2 =new DatagramPacket( data , data.length, resp_addr ,GKDC.MANAGEMENT_PORT);
+                                System.out.println( ANSI_RED + "Send to : " + resp_addr.toString() + ANSI_BLUE +"\nData "/* + new String(pkt2.getData())*/ + ANSI_RESET);
+                                management_sock.send(pkt2);
+                                System.out.println( ANSI_RED + "Send ok " + ANSI_RESET);
                             
-                            
+                            } catch (UnknownHostException ex) {
+                                Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+ 
                         }                                    
                     }
                 };
@@ -123,20 +140,28 @@ public class GKDC {
                     Data msgData = new Data(cipherText, tS.getValue() );
                     //System.out.println("DEBUG messaggio generato: " + msgData.toStringato()); //funziona: è lo stesso messaggio
                     //beccare la lungheza di msgData.toString()
-                    DatagramPacket criptoPkt=new DatagramPacket(msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
-                    System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(criptoPkt.getData(),0,criptoPkt.getLength()) + ANSI_RESET );
+                    
+                    
+                    
+                    //DatagramPacket criptoPkt=new DatagramPacket(    msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
+                    // riga di sopra funzionava
+                    DatagramPacket criptoPkt=new DatagramPacket(SerializationUtils.serialize((Serializable) msgData) , SerializationUtils.serialize((Serializable) msgData).length, multicast_iaddr,DATA_PORT);	
+                    
+                    //System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " + new String(criptoPkt.getData(),0,criptoPkt.getLength()) + ANSI_RESET );
+                    System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " +msgData.toStringato() + ANSI_RESET );
                     data_sock.send(criptoPkt);
                     Thread.sleep(1000*10);
 
                 }
                 
-                System.out.println("END OF GDKC CONSTRUCTOR ");
-                //======================================== VELTRI=======================================
-		/*msg="join".getBytes();
-		pkt=new DatagramPacket(msg,msg.length,Inet4Address.getByName("10.1.1.1"),MANAGEMENT_PORT);
-		System.out.println("GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(pkt.getData(),0,pkt.getLength()));
-		data_sock.send(pkt);*/
-                
+                System.out.println("END OF GDKC CONSTRUCTOR ");                
         }
+        
+    private static String getAddress(String string){
+        
+            String [] arr = string.split("\\[");
+            String [] arr2 =  arr[1].split("\\]");
+            return arr2[0];
+    }
 
 }

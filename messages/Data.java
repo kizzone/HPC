@@ -5,13 +5,18 @@
  */
 package messages;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
  *  Rappresenta il messaggio DATA che i GDKC periodicamente genera ed invia ad i nodi del gruppo
  * @author domenico
  */
-public class Data {
+public class Data implements Serializable {
+
+    public int getTimeSlot() {
+        return timeSlot;
+    }
     
     
     private byte[] cipherText;

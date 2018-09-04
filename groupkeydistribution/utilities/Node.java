@@ -5,13 +5,15 @@
  */
 package groupkeydistribution.utilities;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
  * classe nodo dell'albero ha come parametri una chiave 2 interi che rappresentano la posizione che occupa il nodo nell'albero e i nodi di sx e dx
  * @author D&D
  */
-public class Node {
+public class Node implements Serializable{
     
     
     private byte[] x00 = new byte[16];
@@ -36,6 +38,11 @@ public class Node {
         this.left = null;
         this.right = null;
        
+    }
+    
+    @Override
+    public String toString() {
+    	return "Key: " + Arrays.toString(this.x00) + " row-" + this.riga  + " pos-" + this.pos;  
     }
 
 }

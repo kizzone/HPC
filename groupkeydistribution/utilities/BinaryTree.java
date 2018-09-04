@@ -24,7 +24,6 @@ import java.util.Random;
 public class BinaryTree {
     
     Node root;
-
     
     
     public Node getRoot() {
@@ -51,8 +50,16 @@ public class BinaryTree {
         root.setX00(encodedhash);
         //System.out.println("ahhhhhhh " + bytesToHex(encodedhash));
         //System.out.println("ribalto " + bytesToHex(generatedString.getBytes("UTF-8")));
+  
     }
     
+    public BinaryTree(Node n) throws NoSuchAlgorithmException, UnsupportedEncodingException{  
+        this.root =  n;
+        root.setX00(n.getX00());
+        root.pos = n.pos;
+        root.riga = n.riga;
+        
+    }
     
     
     /**
@@ -118,6 +125,24 @@ public class BinaryTree {
         }
     } 
     
+    public Node search(Node node,int h){
+        if(node != null){
+            if(node.riga == h){
+              // System.out.println("  TROVATO NODO  riga : " + node.riga + " - " + " posizione: " + node.pos );
+               return node;
+            } else {
+              // System.out.println("Non è il nodo che stai cercando semicit. RIGA: " +  node.riga + "POS "+ node.pos);
+                Node foundNode = search(node.left,h);
+                if(foundNode == null) {
+                    foundNode = search(node.right,h);
+                }
+                return foundNode;
+             }
+        } else {
+            return null;
+        }
+    } 
+    
     //da sistemare
     
     /**
@@ -159,8 +184,28 @@ public class BinaryTree {
         }
         return root;
     }
+    
+    public Node buildTree (Node root, int currDepth, int maxDepth) throws NoSuchAlgorithmException, UnsupportedEncodingException{ 
+       Node current = root;
        
-    public void traverseInOrder(Node node) {
+       for (int i = currDepth; i < maxDepth; i++){         
+           int nNode = (int) Math.pow(2, i);
+           
+           for (int k = 0; k < nNode ; k++){
+               Node tmp = search(current, i , k);
+               
+               if(tmp!=null) {
+                   f0(tmp,i+1,k*2);  
+                   f1(tmp,i+1,k*2+1); 
+               }
+               
+           }
+     
+       }
+       return root;
+   }
+    
+    public static void traverseInOrder(Node node) {
         
         if (node != null) {
             traverseInOrder(node.left);
@@ -213,7 +258,7 @@ public class BinaryTree {
         
         ArrayList<Node> nodeList = new ArrayList<Node>();
         for(int i = initInt; i <= endInt; i++) {
-         nodeList.add( b.search(b.getRoot(), profonditaAlbero, i) );
+        	nodeList.add( b.search(b.getRoot(), profonditaAlbero, i) );
         }
         
         for( Node elem : nodeList) {
@@ -259,10 +304,8 @@ public class BinaryTree {
         int result = n.pos % 2 == 0 ? n.pos/2 :  (n.pos-1)/2;
         return result;
     }
-     
     
-    
-    // pecca la profondità dell'albero
+    // becca la profondità dell'albero
     public int maxDepth(Node node) {
        if (node == null) {
            return (-1); // an empty tree  has height −1
@@ -277,9 +320,45 @@ public class BinaryTree {
                return (rightDepth + 1);
        }
    }
+    
+    private int getLastRowSize(int depth) {
+    	return (int) Math.pow(2, depth);
+    }
+    
+    public ArrayList<Node> getIntervalKeys (BinaryTree bt, int depth){
+    	
+    	ArrayList<Node> tmpList = new ArrayList<Node> ();
+    	
+    	for( int i = 0; i < getLastRowSize(depth); i++ ) {
+    		if( bt.search(bt.getRoot(), depth, i) != null ) {
+    			tmpList.add( bt.search(bt.getRoot(), depth, i) );
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+    public static ArrayList<Node> getKeysFromNodes(ArrayList<Node> kSet, int depth) throws NoSuchAlgorithmException, UnsupportedEncodingException{
+    	
+    	ArrayList<Node> derivedKeys = new ArrayList<Node>();
+    	for(Node e : kSet) {
+    		//System.out.println(" e.riga " + e.riga + "e.pos " + e.pos );
+    		BinaryTree tmpTree = new BinaryTree(e);
+    		tmpTree.buildTree(tmpTree.getRoot(), e.riga, depth);
+
+    		System.out.println(" Mini - Khalifa");
+    		//System.out.println( (tmpTree.search( tmpTree.getRoot(), d )).pos );
+    		int i = (tmpTree.search( tmpTree.getRoot(), depth )).pos;
+    		while( tmpTree.search( tmpTree.getRoot(), depth, i ) != null ) {
+    			System.out.println( tmpTree.search( tmpTree.getRoot(), depth, i ).toString() );
+    			derivedKeys.add(tmpTree.search( tmpTree.getRoot(), depth, i ) );
+    			i++;
+    		}
+    		
+    	}
+    	
+		return derivedKeys;
+    }
+
    
-    
-    
-    
-    
 }

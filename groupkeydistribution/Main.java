@@ -19,17 +19,16 @@ public class Main {
 		IpLink network=new IpLink(new Ip4Prefix("10.1.1.0/24"));
 		// GKDC address = 10.1.1.254
 		Ip4AddressPrefix gkdc_addr=(Ip4AddressPrefix)IpAddressUtils.addressPrefix(network.getPrefix(),254);
-		
-		for (int i=0; i<4; i++) {
+		//modificato da 4 a 1 per motivi di "ordine"
+		for (int i=0; i< 1; i++) {
 			new Thread() {
                                 @Override
 				public void run() {
-					try {
-						new Node(network,gkdc_addr);
+					try {  
+                                            new Node(network,gkdc_addr);
 					}
 					catch (IOException e) {
-						e.printStackTrace();
-					} catch (InterruptedException ex) {
+					} catch (InterruptedException | ClassNotFoundException ex) {
                                         Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                                     }
 				}
@@ -37,6 +36,6 @@ public class Main {
 			Thread.sleep(100);
 		}	
 		
-		GKDC gkdc=new GKDC(network,gkdc_addr);
+		GKDC gkdc = new GKDC(network,gkdc_addr);
 	}
 }

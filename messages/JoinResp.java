@@ -14,11 +14,42 @@ JOIN-RESP invece dovrebbe contenere i valori x_{h,i} necessari per coprire l'int
 */
 package messages;
 
+import groupkeydistribution.utilities.Node;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  *
  * @author domenico & domenico
  */
 
-public class JoinResp {
+public class JoinResp implements java.io.Serializable{
+    
+    private ArrayList<Node> keySet;
+
+    public JoinResp(ArrayList<Node> keySet) {
+        this.keySet = keySet;
+    }
+    
+    public ArrayList<Node> getKeySet() {
+        return keySet;
+    }
+
+    public void setKeySet(ArrayList<Node> keySet) {
+        this.keySet = keySet;
+    }
+    
+    
+    //solo per debug
+    public String toStringato(){
+        return "messaggio ricevuto";
+    }
+    
+    //stampa le chiavi ricevute
+    public void receivedKey(){
+        for ( Node e : this.getKeySet()) {
+            System.out.println( "chiavi di riga "+ e.riga +" e posizione: " + e.pos + "valore : " +  Arrays.toString(e.getX00()));  
+        }
+    }
     
 }

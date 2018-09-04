@@ -1,6 +1,7 @@
 package groupkeydistribution;
 
-
+import groupkeydistribution.utilities.BinaryTree;
+import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.timeSlots;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,80 +15,136 @@ import it.unipr.netsec.ipstack.udp.DatagramSocket;
 import it.unipr.netsec.ipstack.udp.UdpLayer;
 import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
+import java.io.Serializable;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import messages.Data;
 import messages.JoinReq;
+import messages.JoinResp;
+import org.apache.commons.lang.SerializationUtils;
 
 
-public class Node {
+public class Node implements Serializable {
     
-        public static final String ANSI_RESET = "\u001B[0m";
-        public static final String ANSI_BLACK = "\u001B[30m";
-        public static final String ANSI_RED = "\u001B[31m";
-        public static final String ANSI_GREEN = "\u001B[32m";
-        public static final String ANSI_YELLOW = "\u001B[33m";
-        public static final String ANSI_BLUE = "\u001B[34m";
-        public static final String ANSI_PURPLE = "\u001B[35m";
-        public static final String ANSI_CYAN = "\u001B[36m";
-        public static final String ANSI_WHITE = "\u001B[37m";
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
+    public ArrayList<groupkeydistribution.utilities.Node> prova; /*TODO*/
+   
+    public Node(IpLink network, Ip4Address gkdc_addr) throws IOException, InterruptedException, ClassNotFoundException {
+        Ip4AddressPrefix node_addr=(Ip4AddressPrefix)network.nextAddressPrefix();
+        // create virtual IP STACK
+        Ip4Layer ip = new Ip4Layer(new NetInterface[]{new IpLinkInterface(network,node_addr)});
+        UdpLayer udp = new UdpLayer(ip);
+        DatagramSocket management_sock=new DatagramSocket(udp,GKDC.MANAGEMENT_PORT);
+        DatagramSocket data_sock=new DatagramSocket(udp,GKDC.DATA_PORT);
 
+        //===================anche il nodo dovrebbe avere un thread che gestisce i messaggi DATA che riceve dal GKDC========================
+        //NON TESTATO
+
+        Thread dataThread = new Thread("data") {
+        @Override
+        public void run(){
+
+            System.out.println(ANSI_YELLOW + " Thread  " + getName() + " is running "  + ANSI_RESET);
+
+            //Il primo messaggio è quello di helloworld poi da togliere, per adesso lo tengo per vedere se funziona
+            byte[] buf=new byte[1024];
+            DatagramPacket pkt = new DatagramPacket(buf,buf.length);
+            try {
+                //System.out.println("Node["+ip_addr+"]: listening");
+                data_sock.receive(pkt);
+            } catch (IOException ex) {
+                Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                System.out.println( ANSI_RED + "Node[" + node_addr + "]: received: "+ new String(pkt.getData(),0,pkt.getLength()) + ANSI_RESET);
+
+            while(true){
+                try {
+                    //la receive dovrebbe essere bloccante
+                    data_sock.receive(pkt);
+                } catch (IOException ex) {
+                    Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                //errore lo da perchè il pacchetto non è stato serializzato con SerializationUtils.serialize
+                Data dataRcv = (Data) SerializationUtils.deserialize( pkt.getData());
+                System.out.println("Ricicevuto un dato: " + dataRcv.toStringato() + "relativo all'intervallo " + dataRcv.timeSlot );
+                //get ciphertext , controllare se l'intervallo temporale rientra in quello che abbiamo noi di chiavi e poi decifrare
+                
+                if (prova != null) {
+	                for (groupkeydistribution.utilities.Node e : prova) {
+	                	if ( dataRcv.timeSlot == e.pos ) {
+	                		
+	                		try {
+								byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
+	
+		                		System.out.println( new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+	                	}
+	                }
+                }
+            }                                    
+        }};
+
+        dataThread.start();
+
+
+        //-------------------------------------------Mandar la richiesta di join----------------------------- 
+        //TODO: ==================vedere se anche per questo bisogna fare un thread
+        // per il momento tutti i nodi inviano dopo 15 secodni la stessa richiesta nello stesso slot temporale
+        Thread.sleep(15000);
+        //System.out.println ("Ip4layer " + ip.toString());//DEBUG
+        JoinReq richiesta = new JoinReq(4,ip.toString());
+        byte[] msgToSend = richiesta.toString().getBytes();
+        InetAddress point_addr = Inet4Address.getByName("10.1.1.254") ; 
+
+        //messo pure qua lo slot temporale per provare
+        DatagramPacket pkt2 =new DatagramPacket(msgToSend,msgToSend.length, point_addr ,GKDC.MANAGEMENT_PORT);
+        System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData())/*+ "in the time slot "+ tS.getValue()*/ + ANSI_RESET);
+        management_sock.send(pkt2);
+
+        //-----------------------------------------------------------------------------------
+
+        byte[] bufResp =new byte[1024];
+        DatagramPacket pktresp = new DatagramPacket(bufResp,bufResp.length);
+        System.out.println("\n\n NODE IN ATTESA DI UNA RISPOSTA!!!\n\n");
+
+        try {
+            //la receive dovrebbe essere bloccante
+            management_sock.receive(pktresp);
+        } catch (IOException ex) {
+            Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        System.out.println("\n\n NODE rivevuto il messaggio!!!\n\n");
+        JoinResp jR = (JoinResp) SerializationUtils.deserialize(pktresp.getData());
+        System.out.println( ANSI_RED + "Node["+node_addr+"]: result request : "+ jR.toStringato() + ANSI_RESET);
+        // da stampare le chiavi per controllare se sono quelle
+        jR.receivedKey(); 
+
+        try {
+			prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), 3);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+    }
     
-	public Node(IpLink network, Ip4Address gkdc_addr) throws IOException, InterruptedException {
-		Ip4AddressPrefix node_addr=(Ip4AddressPrefix)network.nextAddressPrefix();
-		// create virtual IP STACK
-		Ip4Layer ip = new Ip4Layer(new NetInterface[]{new IpLinkInterface(network,node_addr)});
-		UdpLayer udp = new UdpLayer(ip);
-		DatagramSocket management_sock=new DatagramSocket(udp,GKDC.MANAGEMENT_PORT);
-		DatagramSocket data_sock=new DatagramSocket(udp,GKDC.DATA_PORT);
-		
-                //===================anche il nodo dovrebbe avere un thread che gestisce i messaggi DATA che riceve dal GKDC========================
-                
-
-                
-                //=============================================================VELTRI=============================================
-                /*
-                byte[] msg="hello world".getBytes();
-		DatagramPacket pkt=new DatagramPacket(msg,msg.length,multicast_iaddr,DATA_PORT);	
-		System.out.println("GKDC["+gkdc_addr+"]: send to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+new String(pkt.getData(),0,pkt.getLength()));
-		data_sock.send(pkt);
-                */
-                
-                
-		byte[] buf=new byte[1024];
-		DatagramPacket pkt=new DatagramPacket(buf,buf.length);
-		//System.out.println("Node["+ip_addr+"]: listening");
-		data_sock.receive(pkt);
-		System.out.println( ANSI_RED + "Node["+node_addr+"]: received: "+new String(pkt.getData(),0,pkt.getLength()) + ANSI_RESET);
-
-		//management_sock.receive(pkt);
-		//System.out.println("Node["+node_addr+"]: received: "+new String(pkt.getData(),0,pkt.getLength()));
-                
-                
-                //-------------------------------------------Mandar la richiesta di join-----------------------------
-                // per il momento tutti i nodi inviano dopo 15 secodni la stessa richiesta nello stesso slot temporale
-                 Thread.sleep(15000);
-                //System.out.println ("Ip4layer " + ip.toString());//DEBUG
-                JoinReq richiesta = new JoinReq(4,ip.toString());
-                byte[] msgToSend = richiesta.toString().getBytes();
-                InetAddress point_addr = Inet4Address.getByName("10.1.1.254") ; 
-                /*
-                //================solo per prova da modificare=========================
-                int randomNum = ThreadLocalRandom.current().nextInt(0, 5 + 1);
-                Thread.sleep(randomNum * 1000);
-                timeSlots tS = new timeSlots();
-                //=====================================================================
-                */             
-                //messo pure qua lo slot temporale per provare
-                DatagramPacket pkt2 =new DatagramPacket(msgToSend,msgToSend.length, point_addr ,GKDC.MANAGEMENT_PORT);
-                System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData())/*+ "in the time slot "+ tS.getValue()*/ + ANSI_RESET);
-                management_sock.send(pkt2);
-                
-                //-----------------------------------------------------------------------------------
-                
-                
-                
-}
-
 }

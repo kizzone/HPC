@@ -16,7 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Encryption {
     
-    private byte[] key;
+    private static byte[] key;
 
     private static final String ALGORITHM = "AES";
 
@@ -44,7 +44,7 @@ public class Encryption {
      *
      * @param cipherText The data to decrypt
      */
-    public byte[] decrypt(byte[] cipherText) throws Exception
+    public static byte[] decrypt(byte[] cipherText) throws Exception
     {
         SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
