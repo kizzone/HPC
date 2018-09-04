@@ -38,7 +38,7 @@ public class Data implements Serializable {
     // forse c'è un problema nel caso in cui ^ venga letto come stringa del cipherText da ragionarci un attimo
     
     public String toStringato(){
-        return this.timeSlot + " ^ " + Arrays.toString(this.getCipherText());
+        return this.timeSlot + "^" + Arrays.toString(this.getCipherText());
     }
 
 
