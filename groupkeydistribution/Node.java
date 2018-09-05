@@ -9,7 +9,6 @@ import java.net.DatagramPacket;
 import it.unipr.netsec.ipstack.ip4.Ip4Address;
 import it.unipr.netsec.ipstack.ip4.Ip4AddressPrefix;
 import it.unipr.netsec.ipstack.ip4.Ip4Layer;
-import it.unipr.netsec.ipstack.ip4.Ip4Prefix;
 import it.unipr.netsec.ipstack.net.NetInterface;
 import it.unipr.netsec.ipstack.udp.DatagramSocket;
 import it.unipr.netsec.ipstack.udp.UdpLayer;
@@ -21,7 +20,6 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,7 +68,8 @@ public class Node implements Serializable {
             } catch (IOException ex) {
                 Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
             }
-                System.out.println( ANSI_RED + "Node[" + node_addr + "]: received: "+ new String(pkt.getData(),0,pkt.getLength()) + ANSI_RESET);
+            
+            System.out.println( ANSI_RED + "Node[" + node_addr + "]: received: "+ new String(pkt.getData(),0,pkt.getLength()) + ANSI_RESET);
 
             while(true){
                 try {
@@ -81,42 +80,41 @@ public class Node implements Serializable {
                 }
                 //errore lo da perchè il pacchetto non è stato serializzato con SerializationUtils.serialize
                 Data dataRcv = (Data) SerializationUtils.deserialize( pkt.getData());
-                System.out.println("Ricicevuto un dato: " + dataRcv.toStringato() + "relativo all'intervallo " + dataRcv.timeSlot );
+                System.out.println(System.identityHashCode(this) + " riceve: " + dataRcv.toStringato() + "relativo all'intervallo " + dataRcv.timeSlot );
                 //get ciphertext , controllare se l'intervallo temporale rientra in quello che abbiamo noi di chiavi e poi decifrare
                 
                 if (prova != null) {
-	                for (groupkeydistribution.utilities.Node e : prova) {
-	                	if ( dataRcv.timeSlot == e.pos ) {
-	                		
-	                		try {
-								byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
-	
-		                		System.out.println( new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
-							} catch (Exception e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-	                	}
-	                }
+	            for (groupkeydistribution.utilities.Node e : prova) {
+	             	if ( dataRcv.timeSlot == e.pos ) {
+	               
+                            try {
+				byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
+                		System.out.println( new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
+        		    } catch (Exception e1) {
+			
+                                e1.printStackTrace();
+        		    }
+	               	}
+	            }
                 }
             }                                    
         }};
 
         dataThread.start();
 
-
         //-------------------------------------------Mandar la richiesta di join----------------------------- 
-        //TODO: ==================vedere se anche per questo bisogna fare un thread
-        // per il momento tutti i nodi inviano dopo 15 secodni la stessa richiesta nello stesso slot temporale
-        Thread.sleep(15000);
+        int nonChiamarloI = ThreadLocalRandom.current().nextInt(10) + 1;
+        System.out.println("["+ node_addr + "] ha estratto: " + nonChiamarloI );
+        Thread.sleep( nonChiamarloI *10000);
         //System.out.println ("Ip4layer " + ip.toString());//DEBUG
         JoinReq richiesta = new JoinReq(4,ip.toString());
+        System.out.println(ip.toString());
         byte[] msgToSend = richiesta.toString().getBytes();
         InetAddress point_addr = Inet4Address.getByName("10.1.1.254") ; 
 
         //messo pure qua lo slot temporale per provare
         DatagramPacket pkt2 =new DatagramPacket(msgToSend,msgToSend.length, point_addr ,GKDC.MANAGEMENT_PORT);
-        System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData())/*+ "in the time slot "+ tS.getValue()*/ + ANSI_RESET);
+        //System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData()) + " in the time slot " + timeSlots.getValue() + " " + ANSI_RESET);
         management_sock.send(pkt2);
 
         //-----------------------------------------------------------------------------------
@@ -139,10 +137,10 @@ public class Node implements Serializable {
         jR.receivedKey(); 
 
         try {
-			prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), 3);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
+            prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), 3);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         
     }
     

@@ -89,8 +89,16 @@ public class GKDC {
                             } catch (IOException ex) {
                                 Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
                             }
+                            
+                            
                             System.out.println( ANSI_GREEN + "GKDC received a new join request : " + new String(pktrcv.getData(),0,pktrcv.getLength())+"  in time intervall "+ tS.getValue()  +"\n creating JOIN - RESPONSE " +  ANSI_RESET);
-                            //TODO creating join response
+                            /**
+                             * rigenerare tutte le chiavi al join di un nuovo nodo
+                             * e all'uscita
+                             * 
+                            */
+                            
+                            
                             String str = new String(pktrcv.getData(),0,pktrcv.getLength());
                             String [] arr = str.split("&");
                             int finalInt = Integer.parseInt(arr[1]);
@@ -101,7 +109,6 @@ public class GKDC {
                             
                             for ( Node e : nodeList) {
                                 System.out.println( "Devo mandare a " + arr[0] + " le chiavi di riga "+ e.riga +" e posizione: " + e.pos );
-                                
                             }
                             
                             //sending join response to node arr[0]
@@ -109,7 +116,7 @@ public class GKDC {
                             String addr = GKDC.getAddress( arr[0] );
                             System.out.println("indirizzo : " + addr);
                             try {
-                                InetAddress resp_addr = Inet4Address.getByName(addr); //questo non gli piace
+                                InetAddress resp_addr = Inet4Address.getByName(addr); 
                                 //InetAddress response_addr = Inet4Address.getByName("10.1.1.254") ;
                                 //
                                 byte[] data = SerializationUtils.serialize((Serializable) response); 
@@ -131,29 +138,30 @@ public class GKDC {
                 
                 
                 //periodicamente in un iperperiodo slotTemporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
-                                
-                for ( tS.setValue(0); tS.getValue() < slotTemporali; tS.increment() ){
-                    
-                    byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
-                    Encryption en = new Encryption( bT.search(bT.getRoot(),profonditaAlbero ,tS.getValue() ).getX00());
-                    byte[] cipherText = en.encrypt(messaggioSuperSegreto);
-                    Data msgData = new Data(cipherText, tS.getValue() );
-                    //System.out.println("DEBUG messaggio generato: " + msgData.toStringato()); //funziona: è lo stesso messaggio
-                    //beccare la lungheza di msgData.toString()
-
-                    
-                    //DatagramPacket criptoPkt=new DatagramPacket(    msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
-                    // riga di sopra funzionava
-                    DatagramPacket criptoPkt=new DatagramPacket(SerializationUtils.serialize((Serializable) msgData) , SerializationUtils.serialize((Serializable) msgData).length, multicast_iaddr,DATA_PORT);	
-                    
-                    //System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " + new String(criptoPkt.getData(),0,criptoPkt.getLength()) + ANSI_RESET );
-                    System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " +msgData.toStringato() + ANSI_RESET );
-                    data_sock.send(criptoPkt);
-                    Thread.sleep(1000*10);
-
-                }
                 
-                System.out.println("END OF GDKC CONSTRUCTOR ");                
+                while(true) {
+	                for ( tS.setValue(0); tS.getValue() < slotTemporali; tS.increment() ){
+	                    Thread.sleep(1000*10);
+	                    byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
+	                    Encryption en = new Encryption( bT.search(bT.getRoot(),profonditaAlbero ,tS.getValue() ).getX00());
+	                    byte[] cipherText = en.encrypt(messaggioSuperSegreto);
+	                    Data msgData = new Data(cipherText, tS.getValue() );
+	                    //System.out.println("DEBUG messaggio generato: " + msgData.toStringato()); //funziona: è lo stesso messaggio
+	                    //beccare la lungheza di msgData.toString()
+	
+	                    
+	                    //DatagramPacket criptoPkt=new DatagramPacket(    msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
+	                    // riga di sopra funzionava
+	                    DatagramPacket criptoPkt=new DatagramPacket(SerializationUtils.serialize((Serializable) msgData) , SerializationUtils.serialize((Serializable) msgData).length, multicast_iaddr,DATA_PORT);	
+	                    
+	                    //System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " + new String(criptoPkt.getData(),0,criptoPkt.getLength()) + ANSI_RESET );
+	                    System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " +msgData.toStringato() + ANSI_RESET );
+	                    data_sock.send(criptoPkt);
+	                }
+	                       
+                }
+
+                //System.out.println("END OF GDKC CONSTRUCTOR ");  
         }
         
     private static String getAddress(String string){
