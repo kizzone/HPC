@@ -2,7 +2,7 @@ package groupkeydistribution;
 
 import groupkeydistribution.utilities.BinaryTree;
 import groupkeydistribution.utilities.Encryption;
-import groupkeydistribution.utilities.timeSlots;
+import groupkeydistribution.utilities.Singleton;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
@@ -91,7 +91,6 @@ public class Node implements Serializable {
 				byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
                 		System.out.println( new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
         		    } catch (Exception e1) {
-			
                                 e1.printStackTrace();
         		    }
 	               	}
@@ -101,14 +100,27 @@ public class Node implements Serializable {
         }};
 
         dataThread.start();
-
+        
+        Thread.sleep(1000);
         //-------------------------------------------Mandar la richiesta di join----------------------------- 
-        int nonChiamarloI = ThreadLocalRandom.current().nextInt(10) + 1;
+        int maxSlots = Singleton.getIstance().getLeafs() - 1;
+        //System.out.println(maxSlots);
+        
+        int nonChiamarloI = ThreadLocalRandom.current().nextInt( maxSlots );
+        
         System.out.println("["+ node_addr + "] ha estratto: " + nonChiamarloI );
-        Thread.sleep( nonChiamarloI *10000);
+        Thread.sleep( nonChiamarloI * 10000);
         //System.out.println ("Ip4layer " + ip.toString());//DEBUG
-        JoinReq richiesta = new JoinReq(4,ip.toString());
-        System.out.println(ip.toString());
+        
+        int rimanenza = 4;
+        //TODO : estrarre tempo di rimanenza nel gruppo
+        if( nonChiamarloI + rimanenza > maxSlots){
+            rimanenza = maxSlots - nonChiamarloI;
+        }
+        
+        JoinReq richiesta = new JoinReq( rimanenza,ip.toString() );
+        System.out.println(ip.toString() + ": tempo che sto nel gruppo " + rimanenza);
+        
         byte[] msgToSend = richiesta.toString().getBytes();
         InetAddress point_addr = Inet4Address.getByName("10.1.1.254") ; 
 
@@ -137,7 +149,7 @@ public class Node implements Serializable {
         jR.receivedKey(); 
 
         try {
-            prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), 3);
+            prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), Singleton.getIstance().getDepth() );
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
