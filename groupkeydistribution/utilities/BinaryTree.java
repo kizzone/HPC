@@ -25,7 +25,12 @@ public class BinaryTree {
     
     Node root;
     
-    
+       
+    /**
+     * 
+     * @return 
+     */
+  
     public Node getRoot() {
         return root;
     }
@@ -205,16 +210,26 @@ public class BinaryTree {
        return root;
    }
     
-    public static void traverseInOrder(Node node) {
+    /**
+     *
+     * @param node
+     */
+    public void traverseInOrder(Node node) {
         
         if (node != null) {
             traverseInOrder(node.left);
-            System.out.println(" Stampa albero riga:" + node.riga + "posizione:" + node.pos + "KEY: " + Arrays.toString(node.getX00()));
+            System.out.println("        Stampa albero riga:" + node.riga + "posizione:" + node.pos + "KEY: " + Arrays.toString(node.getX00()));
             traverseInOrder(node.right);
         }
         
     }
     
+
+    /**
+     * 
+     * @param hash
+     * @return 
+     */
     public static String bytesToHex(byte[] hash) {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
@@ -226,7 +241,12 @@ public class BinaryTree {
     }
     
     
-    //aumenta l'array di byte 
+    
+    /**
+     * aumenta l'array di byte 
+     * @param hash
+     * @return 
+     */
     private byte[] incrementAtIndex(byte[] array, int index) {
         if (array[index] == 127) {
             array[index] = 0;
@@ -268,44 +288,65 @@ public class BinaryTree {
         int oldLength = 0;
         
         while(nodeList.size() != oldLength ) {
-         //System.out.println("Giro di unione");
-         oldLength = nodeList.size();
-         
-         for(int i = 0; i < nodeList.size()-1; i++) {
-          
-          Node curr = nodeList.get(i);
-          Node next = nodeList.get(i+1);
-          
-          String prevCurr = String.valueOf(curr.riga) + String.valueOf(getPrevPos(curr)+1);
-          String prevNext = String.valueOf(next.riga) + String.valueOf(getPrevPos(next)+1);
-          
-          
-          //System.out.println("prevCurr " + prevCurr );
-          //System.out.println("prevNext " + prevNext );
-          
-          if(prevCurr.equals(prevNext)) {
-           nodeList.add(i, b.search(b.getRoot(), curr.riga-1, getPrevPos(curr)) );
-           nodeList.remove(curr);
-           nodeList.remove(next);
-          }
-         }
+            //System.out.println("Giro di unione");
+            oldLength = nodeList.size();
+
+            for(int i = 0; i < nodeList.size()-1; i++) {
+
+                Node curr = nodeList.get(i);
+                Node next = nodeList.get(i+1);
+
+                String prevCurr = String.valueOf(curr.riga) + String.valueOf(getPrevPos(curr)+1);
+                String prevNext = String.valueOf(next.riga) + String.valueOf(getPrevPos(next)+1);
+
+
+                //System.out.println("prevCurr " + prevCurr );
+                //System.out.println("prevNext " + prevNext );
+
+                if(prevCurr.equals(prevNext)) {
+                    
+                nodeList.add(i, b.search(b.getRoot(), curr.riga-1, getPrevPos(curr)) );
+                nodeList.remove(curr);
+                nodeList.remove(next);
+                
+                }
+             
+            }
          
         }
         
+        /*  ===========================================DEBUG========================
         for( Node elem : nodeList) {
          System.out.println("Nodo: "+ elem.riga + elem.pos);
         }
+         ===========================================DEBUG======================== */
      
      return nodeList;
     }
     
+    
+    
+    /**
+     * 
+     * 
+     * 
+     * @param n
+     * @return 
+     */
     private int getPrevPos(Node n) {
-     
+        
         int result = n.pos % 2 == 0 ? n.pos/2 :  (n.pos-1)/2;
         return result;
+        
     }
     
-    // becca la profondità dell'albero
+    
+    /**
+     * becca la profondità dell'albero
+     * 
+     * @param node
+     * @return 
+     */
     public int maxDepth(Node node) {
        if (node == null) {
            return (-1); // an empty tree  has height −1
@@ -319,12 +360,25 @@ public class BinaryTree {
            else
                return (rightDepth + 1);
        }
-   }
+    }
     
+    /**
+     * 
+     * 
+     * @param depth
+     * @return 
+     */
     private int getLastRowSize(int depth) {
     	return (int) Math.pow(2, depth);
     }
     
+    /**
+     * 
+     * 
+     * @param bt
+     * @param depth
+     * @return 
+     */
     public ArrayList<Node> getIntervalKeys (BinaryTree bt, int depth){
     	
     	ArrayList<Node> tmpList = new ArrayList<Node> ();
@@ -338,6 +392,15 @@ public class BinaryTree {
     	return null;
     }
     
+    /**
+     * 
+     * 
+     * @param kSet
+     * @param depth
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException 
+     */
     public static ArrayList<Node> getKeysFromNodes(ArrayList<Node> kSet, int depth) throws NoSuchAlgorithmException, UnsupportedEncodingException{
     	
     	ArrayList<Node> derivedKeys = new ArrayList<Node>();
@@ -346,19 +409,19 @@ public class BinaryTree {
     		BinaryTree tmpTree = new BinaryTree(e);
     		tmpTree.buildTree(tmpTree.getRoot(), e.riga, depth);
 
-    		System.out.println(" Derivo le chiavi da: X" + e.riga + e.pos );
+    		System.out.println("        Derivo le chiavi da: X" + e.riga + e.pos );
     		//System.out.println( (tmpTree.search( tmpTree.getRoot(), d )).pos );
     		
     		int i = (tmpTree.search( tmpTree.getRoot(), depth )).pos;
     		while( tmpTree.search( tmpTree.getRoot(), depth, i ) != null ) {
-    			System.out.println( tmpTree.search( tmpTree.getRoot(), depth, i ).toString() );
+    			System.out.println( "           " + tmpTree.search( tmpTree.getRoot(), depth, i ).toString() );
     			derivedKeys.add(tmpTree.search( tmpTree.getRoot(), depth, i ) );
     			i++;
     		}
     		
     	}
     	
-		return derivedKeys;
+        return derivedKeys;
     }
 
    
