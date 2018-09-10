@@ -2,7 +2,6 @@ package groupkeydistribution;
 
 
 import java.io.IOException;
-
 import it.unipr.netsec.ipstack.ip4.Ip4AddressPrefix;
 import it.unipr.netsec.ipstack.ip4.Ip4Prefix;
 import it.unipr.netsec.ipstack.util.IpAddressUtils;
@@ -10,9 +9,6 @@ import it.unipr.netsec.nemo.ip.IpLink;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-
-
 
 /**
  * 
@@ -27,7 +23,7 @@ public class Main {
 		// GKDC address = 10.1.1.254
 		Ip4AddressPrefix gkdc_addr=(Ip4AddressPrefix)IpAddressUtils.addressPrefix(network.getPrefix(),254);
 		//modificato da 4 a 1 per motivi di "ordine"
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 4; i++) {
                     new Thread() {
                         @Override
 			public void run() {

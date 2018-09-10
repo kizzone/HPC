@@ -22,13 +22,15 @@ public class Encryption {
 
     public Encryption(byte[] key)
     {
-        this.key = key;
+        Encryption.key = key;
     }
 
     /**
      * Encrypts the given plain text
      *
      * @param plainText The plain text to encrypt
+     * @return 
+     * @throws java.lang.Exception
      */
     public byte[] encrypt(byte[] plainText) throws Exception
     {
@@ -43,12 +45,13 @@ public class Encryption {
      * Decrypts the given byte array
      *
      * @param cipherText The data to decrypt
+     * @return 
+     * @throws java.lang.Exception
      */
     public static byte[] decrypt(byte[] cipherText) throws Exception{
         SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
-
         return cipher.doFinal(cipherText);
     }
 

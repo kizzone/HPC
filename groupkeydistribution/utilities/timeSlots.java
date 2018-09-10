@@ -6,11 +6,12 @@
 package groupkeydistribution.utilities;
 
 /**
+ * 
  *  Classe utilizzata per simulare uno slot temporale in maniera protetta così da non avere interferenza tra i thread
  * @author domenico
  */
 
-//@ThreadSafe
+@Deprecated
 public class timeSlots {
     // Employs the cheap read-write lock trick
     // All mutative operations MUST be done with the 'this' lock held

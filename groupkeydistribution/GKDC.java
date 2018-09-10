@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-
 import it.unipr.netsec.ipstack.ip4.Ip4AddressPrefix;
 import it.unipr.netsec.ipstack.ip4.Ip4Layer;
 import it.unipr.netsec.ipstack.ip4.Ip4Prefix;
@@ -20,11 +19,9 @@ import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
 import java.io.Serializable;
 import java.net.UnknownHostException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,11 +48,11 @@ public class GKDC {
     public static final String ANSI_WHITE = "\u001B[37m";
     public static final int MANAGEMENT_PORT=4001;
     public static final int DATA_PORT=4000;
-    
-    
+
+    //TODO aggiustare : non funziona lo volevo fare per fermare il cliclo nel thread managment
     protected volatile boolean stop = false;
     
-    //=================================================================================parte con k2=========================================================================
+    //Chiave k2
     private byte[] k2 = new byte[16];
     //======================================================================================================================================================================
 
@@ -67,7 +64,7 @@ public class GKDC {
         //----------------------------------------------------------------------
         
         Singleton virtualTime = Singleton.getIstance();
-        virtualTime.setDepth(3); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
+        virtualTime.setDepth(6); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
         virtualTime.setLeafs( (int) Math.pow(2,virtualTime.getDepth()) );
 
         // create virtual IP STACK
@@ -112,7 +109,7 @@ public class GKDC {
                     int finalInt = Integer.parseInt(arr[1]);
                     int initInt = virtualTime.getValue();
                     
-                    ArrayList<Node> nodeList = new ArrayList<Node>();
+                    ArrayList<Node> nodeList = new ArrayList<>();
                     System.out.println( ANSI_YELLOW + "GKDC (managment) : Sono stati richiesti chiavi dall'intevallo " + (initInt) + "-" + (initInt + finalInt - 1) + ANSI_RESET);
                     nodeList =  bT.getKeySet(bT  ,   initInt , initInt + finalInt - 1 );
 
@@ -173,7 +170,7 @@ public class GKDC {
     }
         
     /**
-     * 
+     * Estrarre indirizzo da una stringa
      * @author domenico
      */
 

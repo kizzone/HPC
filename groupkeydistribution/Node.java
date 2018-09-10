@@ -14,13 +14,11 @@ import it.unipr.netsec.ipstack.udp.UdpLayer;
 import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,8 +83,7 @@ public class Node implements Serializable {
                 Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            //==================================================================
-            k2 = pkt.getData();//==================================================================
+            k2 = pkt.getData();
             System.out.println( ANSI_RED + "Node[" + node_addr + "]: k2 received: " + BinaryTree.bytesToHex(k2) + ANSI_RESET);
             
 
@@ -103,15 +100,13 @@ public class Node implements Serializable {
                 System.out.println(ANSI_RED + "NODE Thread DATA n " + System.identityHashCode(this) + " ricevuto dato : " + dataRcv.toStringato() + ANSI_RESET);
                 
                 if (prova != null) {
-	            for (groupkeydistribution.utilities.Node e : prova) {
-	             	if ( dataRcv.timeSlot == e.pos ) {
-                            try {
-				byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
-                		System.out.println(ANSI_RED + "NODE Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
-        		    } catch (Exception e1) {
-        		    }
-	               	}
-	            }
+                    prova.stream().filter((e) -> ( dataRcv.timeSlot == e.pos )).forEachOrdered((_item) -> {
+                        try {
+                            byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
+                            System.out.println(ANSI_RED + "NODE Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
+                        } catch (Exception e1) {
+                        }
+                    });
                 }
             }                                    
         }};

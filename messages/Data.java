@@ -16,13 +16,10 @@ import java.util.Arrays;
 
 
 public class Data implements Serializable {
-
-    
+ 
     private final byte[] cipherText;
     public int timeSlot;
-    
-    
-    
+   
     /**
      * 
      * Recupera il timeSlot nel messaggio DATA
