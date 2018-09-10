@@ -43,7 +43,7 @@ public class BinaryTree {
      * @throws UnsupportedEncodingException 
      */
     
-    public BinaryTree() throws NoSuchAlgorithmException, UnsupportedEncodingException{
+    public BinaryTree(byte [] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
         this.root =  new Node();
         byte[] array = new byte[16]; // length is bounded by 7
@@ -52,7 +52,7 @@ public class BinaryTree {
         
         MessageDigest digest = MessageDigest.getInstance("MD5");
         byte[] encodedhash = digest.digest(generatedString.getBytes("UTF-8"));
-        root.setX00(encodedhash);
+        root.setX00( xor(encodedhash, k2) );
         //System.out.println("ahhhhhhh " + bytesToHex(encodedhash));
         //System.out.println("ribalto " + bytesToHex(generatedString.getBytes("UTF-8")));
   
@@ -74,17 +74,29 @@ public class BinaryTree {
      * @throws UnsupportedEncodingException 
      */
     
-    public void f0 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
+    public void f0 ( Node current, int riga , int pos , byte [] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
         
         String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));
         MessageDigest digest = MessageDigest.getInstance("MD5");
-        byte[] encodedhash = digest.digest(generatedString.getBytes("UTF-8"));
+        byte[] encodedhash = digest.digest(generatedString.getBytes("UTF-8"));  
         Node newNode = new Node();
-        newNode.setX00( encodedhash );
+        newNode.setX00( xor(encodedhash, k2) );
         newNode.riga = riga;
         newNode.pos  = pos;
         current.left =  newNode;
         
+    }
+    
+    
+    
+    
+    public static byte[] xor(byte[] a, byte[] b) {
+        byte[] result = new byte[Math.min(a.length, b.length)];
+
+        for (int i = 0; i < result.length; i++) {
+          result[i] = (byte) (((int) a[i]) ^ ((int) b[i]));
+        }
+        return result;
     }
     
     /**
@@ -93,13 +105,13 @@ public class BinaryTree {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException 
      */
-    public void f1 ( Node current, int riga , int pos ) throws NoSuchAlgorithmException, UnsupportedEncodingException{
+    public void f1 ( Node current, int riga , int pos , byte [] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
     	
         String generatedString = new String(current.getX00(), Charset.forName("UTF-8"));        
         MessageDigest digest = MessageDigest.getInstance("MD5");
         byte[] encodedhash = digest.digest(incrementAtIndex(generatedString.getBytes("UTF-8"),0));
         Node newNode = new Node();
-        newNode.setX00( encodedhash );
+        newNode.setX00( xor(encodedhash, k2) );
         newNode.riga = riga;
         newNode.pos  = pos;
         current.right =  newNode;
@@ -158,7 +170,7 @@ public class BinaryTree {
      */
     
     
-    public Node buildTree (Node root, int profondita) throws NoSuchAlgorithmException, UnsupportedEncodingException{
+    public Node buildTree (Node root, int profondita, byte[] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
      //* è brutta da vedere ma va sistemata ancora   
         Node current = root;
         int y = 0;
@@ -166,9 +178,9 @@ public class BinaryTree {
         int z = 0;
         Node tmp2 = search(current, y , z);
         //System.out.println("APPLICO F0 al nodo riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
-        f0(tmp2,y+1,z*2);  
+        f0(tmp2,y+1,z*2,k2);  
         //System.out.println("APPLICO F1 riga-colonna" + tmp2.riga+ "-"+ tmp2.pos);
-        f1(tmp2,y+1,z*2+1); 
+        f1(tmp2,y+1,z*2+1,k2); 
         
         for (int i = 1 ; i < profondita; i++){
             
@@ -180,9 +192,9 @@ public class BinaryTree {
                 //System.out.println("riga da ricercare: " + i + " posizione da ricercare: " + k );
                 Node tmp = search(current, i , k);
                 //System.out.println("APPLICO F0 al nodo riga-colonna" + tmp.riga+ "-"+ tmp.pos);
-                f0(tmp,i+1,k*2);  
+                f0(tmp,i+1,k*2,k2);  
                 //System.out.println("APPLICO F1 riga-colonna" + tmp.riga+ "-"+ tmp.pos);
-                f1(tmp,i+1,k*2+1); 
+                f1(tmp,i+1,k*2+1,k2); 
                 
             }
       
@@ -190,7 +202,7 @@ public class BinaryTree {
         return root;
     }
     
-    public Node buildTree (Node root, int currDepth, int maxDepth) throws NoSuchAlgorithmException, UnsupportedEncodingException{ 
+    public Node buildTree (Node root, int currDepth, int maxDepth, byte[] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{ 
        Node current = root;
        
        for (int i = currDepth; i < maxDepth; i++){         
@@ -200,8 +212,8 @@ public class BinaryTree {
                Node tmp = search(current, i , k);
                
                if(tmp!=null) {
-                   f0(tmp,i+1,k*2);  
-                   f1(tmp,i+1,k*2+1); 
+                   f0(tmp,i+1,k*2,k2);  
+                   f1(tmp,i+1,k*2+1,k2); 
                }
                
            }
@@ -401,13 +413,13 @@ public class BinaryTree {
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException 
      */
-    public static ArrayList<Node> getKeysFromNodes(ArrayList<Node> kSet, int depth) throws NoSuchAlgorithmException, UnsupportedEncodingException{
+    public static ArrayList<Node> getKeysFromNodes(ArrayList<Node> kSet, int depth, byte[] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
     	
     	ArrayList<Node> derivedKeys = new ArrayList<Node>();
     	for(Node e : kSet) {
     		//System.out.println(" e.riga " + e.riga + "e.pos " + e.pos );
     		BinaryTree tmpTree = new BinaryTree(e);
-    		tmpTree.buildTree(tmpTree.getRoot(), e.riga, depth);
+    		tmpTree.buildTree(tmpTree.getRoot(), e.riga, depth, k2);
 
     		System.out.println("        Derivo le chiavi da: X" + e.riga + e.pos );
     		//System.out.println( (tmpTree.search( tmpTree.getRoot(), d )).pos );

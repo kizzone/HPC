@@ -46,6 +46,7 @@ public class Node implements Serializable {
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
     public ArrayList<groupkeydistribution.utilities.Node> prova; 
+    private byte [] k2 ;
    
     /**
      * 
@@ -65,6 +66,7 @@ public class Node implements Serializable {
         UdpLayer udp = new UdpLayer(ip);
         DatagramSocket management_sock=new DatagramSocket(udp,GKDC.MANAGEMENT_PORT);
         DatagramSocket data_sock=new DatagramSocket(udp,GKDC.DATA_PORT);
+        
 
         //===================Il nodo ha un thread che gestisce i messaggi DATA che riceve dal GKDC==================================================
 
@@ -73,9 +75,8 @@ public class Node implements Serializable {
         public void run(){
 
             System.out.println(ANSI_RED + "NODE:  Thread  " + getName() + " is running "  + ANSI_RESET);
-
             //Il primo messaggio è quello di helloworld poi da togliere, per adesso lo tengo per vedere se funziona
-            byte[] buf=new byte[1024];
+            byte[] buf=new byte[16];
             DatagramPacket pkt = new DatagramPacket(buf,buf.length);
             try {
                 //System.out.println("Node["+ip_addr+"]: listening");  //DEBUG
@@ -85,17 +86,13 @@ public class Node implements Serializable {
             }
             
             //==================================================================
-            try {
-                byte [] k2 = new String(pkt.getData(),0,pkt.getLength()).getBytes("UTF-8");
-                System.out.println( ANSI_RED + "Node[" + node_addr + "]: k2 received: " + Arrays.toString(k2) + ANSI_RESET); 
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            //==================================================================
+            k2 = pkt.getData();//==================================================================
+            System.out.println( ANSI_RED + "Node[" + node_addr + "]: k2 received: " + BinaryTree.bytesToHex(k2) + ANSI_RESET);
             
 
             while(true){
-                
+                buf = new byte[1024];
+                pkt = new DatagramPacket(buf,buf.length);
                 try {
                     data_sock.receive(pkt);
                 } catch (IOException ex) {
@@ -167,7 +164,7 @@ public class Node implements Serializable {
 
         
         try {
-            prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), Singleton.getIstance().getDepth() );
+            prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), Singleton.getIstance().getDepth(),k2 );
         } catch (NoSuchAlgorithmException e) {
         }
         

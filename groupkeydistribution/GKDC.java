@@ -20,6 +20,7 @@ import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
 import java.io.Serializable;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -80,12 +81,12 @@ public class GKDC {
         //  byte[] msg="hello world".getBytes();    //sostituito con k2
         //DatagramPacket pkt=new DatagramPacket(msg,msg.length,multicast_iaddr,DATA_PORT);	
         DatagramPacket pkt=new DatagramPacket(k2,k2.length,multicast_iaddr,DATA_PORT);	
-        System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send K2 to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+ Arrays.toString(k2) + ANSI_RESET );
+        System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send K2 to "+pkt.getAddress().getHostAddress()+":"+pkt.getPort()+": "+ BinaryTree.bytesToHex(k2)  + ANSI_RESET );
         data_sock.send(pkt);
 
         //inizializzazione albero chiavi
-        BinaryTree bT = new BinaryTree();
-        groupkeydistribution.utilities.Node node = bT.buildTree(bT.getRoot(),virtualTime.getDepth() );
+        BinaryTree bT = new BinaryTree(k2);
+        groupkeydistribution.utilities.Node node = bT.buildTree(bT.getRoot(),virtualTime.getDepth() ,k2);
         bT.traverseInOrder(node);
 
         //===============================il thread management si occupa di ricevere le richieste di JOIN e rispondere con eventuale messaggio di RESPONSE
