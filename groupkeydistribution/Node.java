@@ -97,13 +97,13 @@ public class Node implements Serializable {
                 }
                 
                 Data dataRcv = (Data) SerializationUtils.deserialize( pkt.getData());
-                System.out.println(ANSI_RED + "NODE Thread DATA n " + System.identityHashCode(this) + " ricevuto dato : " + dataRcv.toStringato() + ANSI_RESET);
+                System.out.println(ANSI_RED + "NODE Thread DATA n " + node_addr + " ricevuto dato : " + dataRcv.toStringato() + ANSI_RESET);
                 
                 if (prova != null) {
                     prova.stream().filter((e) -> ( dataRcv.timeSlot == e.pos )).forEachOrdered((_item) -> {
                         try {
                             byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
-                            System.out.println(ANSI_RED + "NODE Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
+                            System.out.println(ANSI_RED + "NODE "+ ANSI_RESET + node_addr + ANSI_RED+ " Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
                         } catch (Exception e1) {
                         }
                     });
@@ -120,14 +120,14 @@ public class Node implements Serializable {
         
         int nonChiamarloI = ThreadLocalRandom.current().nextInt( maxSlots );
         
-        System.out.println("NODE ["+ node_addr + "] ha estratto: " + nonChiamarloI );
+        System.out.println("NODE ["+ node_addr + "] ha estratto: " + nonChiamarloI  );
         Thread.sleep( nonChiamarloI * 10000);
         //System.out.println ("Ip4layer " + ip.toString());//DEBUG
         
         int rimanenza = 4; //TODO: da rendere dinamico anche questo
        
         if( nonChiamarloI + rimanenza > maxSlots){
-            rimanenza = maxSlots - nonChiamarloI;
+            rimanenza = maxSlots - nonChiamarloI +1;
         }
         
         JoinReq richiesta = new JoinReq( rimanenza,ip.toString() );

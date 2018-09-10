@@ -64,7 +64,7 @@ public class GKDC {
         //----------------------------------------------------------------------
         
         Singleton virtualTime = Singleton.getIstance();
-        virtualTime.setDepth(6); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
+        virtualTime.setDepth(3); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
         virtualTime.setLeafs( (int) Math.pow(2,virtualTime.getDepth()) );
 
         // create virtual IP STACK
