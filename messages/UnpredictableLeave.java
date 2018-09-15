@@ -5,11 +5,13 @@
  */
 package messages;
 
+import java.io.Serializable;
+
 /**
  * Rappresenta il messaggio che un nodo manda in caso dovesse abbandonare prima del previsto la rete
  * @author domenico
  */
-public class UnpredictableLeave {
+public class UnpredictableLeave implements Serializable{
     
     private int currentTimeSlot;
     private String nodeIP;

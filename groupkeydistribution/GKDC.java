@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import messages.Data;
 import messages.JoinResp;
+import messages.UnpredictableLeave;
 import org.apache.commons.lang.SerializationUtils;
 
 
@@ -46,8 +47,9 @@ public class GKDC {
     public static final String ANSI_PURPLE = "\u001B[35m";
     public static final String ANSI_CYAN = "\u001B[36m";
     public static final String ANSI_WHITE = "\u001B[37m";
-    public static final int MANAGEMENT_PORT=4001;
-    public static final int DATA_PORT=4000;
+    public static final int MANAGEMENT_PORT = 4001;
+    public static final int DATA_PORT = 4000;
+    public static final int LEAVE_PORT = 4002;
 
     //TODO aggiustare : non funziona lo volevo fare per fermare il cliclo nel thread managment
     protected volatile boolean stop = false;
@@ -73,6 +75,9 @@ public class GKDC {
 
         DatagramSocket management_sock=new DatagramSocket(udp,MANAGEMENT_PORT);
         DatagramSocket data_sock=new DatagramSocket(udp,DATA_PORT);
+        //===============================
+        DatagramSocket leave_sock=new DatagramSocket(udp,LEAVE_PORT);
+        
 
         InetAddress multicast_iaddr=Inet4Address.getByName(((Ip4Prefix)network.getPrefix()).getNetworkBroadcastAddress().toString());
         //  byte[] msg="hello world".getBytes();    //sostituito con k2
@@ -90,6 +95,7 @@ public class GKDC {
 
         Thread managementThread = new Thread("management") {
         @Override
+        @SuppressWarnings("empty-statement")
         public void run(){
 
                 System.out.println(ANSI_YELLOW + "Thread  " + getName() + " is running "  + ANSI_RESET);
@@ -97,18 +103,17 @@ public class GKDC {
                 DatagramPacket pktrcv =new DatagramPacket(buf,buf.length);
                 while(!stop){
                     try {
-                        //la receive dovrebbe essere bloccante
+                       //la receive dovrebbe essere bloccante
                         management_sock.receive(pktrcv);
                     } catch (IOException ex) {
                         Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
+     
                     System.out.println( ANSI_YELLOW + "GKDC (managment) received a new join request : " + new String(pktrcv.getData(),0,pktrcv.getLength())+"  in time intervall "+ virtualTime.getValue()  +"creating JOIN - RESPONSE " +  ANSI_RESET);
                     String str = new String(pktrcv.getData(),0,pktrcv.getLength());
                     String [] arr = str.split("&");
                     int finalInt = Integer.parseInt(arr[1]);
                     int initInt = virtualTime.getValue();
-                    
                     ArrayList<Node> nodeList = new ArrayList<>();
                     System.out.println( ANSI_YELLOW + "GKDC (managment) : Sono stati richiesti chiavi dall'intevallo " + (initInt) + "-" + (initInt + finalInt - 1) + ANSI_RESET);
                     nodeList =  bT.getKeySet(bT  ,   initInt , initInt + finalInt - 1 );
@@ -122,7 +127,7 @@ public class GKDC {
                     String addr = GKDC.getAddress( arr[0] );
                     //System.out.println("indirizzo : " + addr);//debug
                     try {
-                        
+
                         InetAddress resp_addr = Inet4Address.getByName(addr); 
                         byte[] data = SerializationUtils.serialize((Serializable) response); 
                         DatagramPacket pkt2 =new DatagramPacket( data , data.length, resp_addr ,GKDC.MANAGEMENT_PORT);
@@ -135,14 +140,50 @@ public class GKDC {
                     } catch (IOException ex) {
                         Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
-                }        
+                    
+                }
+     
                 System.out.println(ANSI_YELLOW + "Managment thread exit " + ANSI_RESET);
             }
         };
         managementThread.start();
+        
+        
+        Thread leavingThread = new Thread("leaving") {
+        @Override
+        @SuppressWarnings("empty-statement")
+        public void run(){
 
+                System.out.println(ANSI_YELLOW + "Thread  " + getName() + " is running "  + ANSI_RESET);
+                byte[] buf=new byte[1024];
+                DatagramPacket pktrcv = new DatagramPacket(buf,buf.length);
+                while(!stop){
+                    try {
+                       //la receive dovrebbe essere bloccante
+                        leave_sock.receive(pktrcv);
+                    } catch (IOException ex) {
+                        Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    finally{
+                        UnpredictableLeave uL = (UnpredictableLeave) SerializationUtils.deserialize(pktrcv.getData());
+                        System.out.println("LEAVE MESSAGE RECEIVED from " + uL.getNode() + "  relativo al time  slot: " + uL.getCurrentTimeSlot());
+                        //cambiare k2, riaggiornare l'albero e avvisare tutti i nodi
+                    }
 
+                } 
+                System.out.println(ANSI_YELLOW + "Leaving thread exit " + ANSI_RESET);
+            }
+        };
+        leavingThread.start();
+        
+
+        
+        
+        
+        
+        
+        
+        
         //periodicamente in un iperperiodo di slot temporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
         
         for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs(); virtualTime.increment() ){

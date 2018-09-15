@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import messages.Data;
 import messages.JoinReq;
 import messages.JoinResp;
+import messages.UnpredictableLeave;
 import org.apache.commons.lang.SerializationUtils;
 
 /**
@@ -161,6 +162,31 @@ public class Node implements Serializable {
         try {
             prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), Singleton.getIstance().getDepth(),k2 );
         } catch (NoSuchAlgorithmException e) {
+        }
+        
+        
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++SENDING LEAVE MESSAGE +++++++++++++++++++++++++++++++++++++++++++++++++++++
+        
+        int aa = (int )node_addr.toString().toCharArray()[node_addr.toString().length() -1 ];
+        
+        if( (aa % 2) == 0 ){
+            int ts = Singleton.getIstance().getValue();
+            
+            //se non sforiamo l'intervallo allora lo mando
+            if (ts + 2 <  Singleton.getIstance().getLeafs() ){
+                
+                UnpredictableLeave uL = new UnpredictableLeave ((ts + 2) ,node_addr.toString());
+                byte[] leaveMessage = SerializationUtils.serialize(uL); 
+                DatagramPacket pkt3 = new DatagramPacket(leaveMessage,leaveMessage.length, point_addr ,GKDC.LEAVE_PORT);
+                System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nUNPREDICTABLE LEAVE in the time slot " + (ts + 2)  + " " + ANSI_RESET); //DEBUG
+                //BUSY WAITING....
+                while ( Singleton.getIstance().getValue() != ts + 2){
+                    
+                }
+                management_sock.send(pkt3);
+            
+            }
+            
         }
         
     }

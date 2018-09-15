@@ -17,7 +17,15 @@ import java.util.logging.Logger;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException, Exception {
+	/**
+         * 
+         * @param args
+         * @throws IOException
+         * @throws InterruptedException
+         * @throws NoSuchAlgorithmException
+         * @throws Exception 
+         */
+            public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException, Exception {
 		
 		IpLink network=new IpLink(new Ip4Prefix("10.1.1.0/24"));
 		// GKDC address = 10.1.1.254
