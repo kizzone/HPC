@@ -2,7 +2,6 @@ package groupkeydistribution;
 
 
 import groupkeydistribution.utilities.BinaryTree;
-import groupkeydistribution.utilities.Encrypter;
 import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.Node;
 import groupkeydistribution.utilities.Singleton;
@@ -25,6 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,7 +62,9 @@ public class GKDC {
     //Chiave k2
     private byte[] k2 = new byte[16];
     private BinaryTree bT = null;
-    //======================================================================================================================================================================
+    //=====================================================================================================================================================================
+    private Map<String, String> map = new HashMap<String, String>();
+    
 
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
     public GKDC(IpLink network, Ip4AddressPrefix gkdc_addr) throws IOException, NoSuchAlgorithmException, Exception {
@@ -70,7 +74,6 @@ public class GKDC {
         //----------------------------------------------------------------------
         
         Singleton virtualTime = Singleton.getIstance();
-        
         virtualTime.setDepth(3); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
         virtualTime.setLeafs( (int) Math.pow(2,virtualTime.getDepth()) );
 
@@ -120,6 +123,17 @@ public class GKDC {
                     int finalInt = Integer.parseInt(arr[1]);
                     int initInt = virtualTime.getValue();
                     ArrayList<Node> nodeList = new ArrayList<>();
+                    
+                    
+                    //============================================================================================================================================================
+                    map.put(getAddress(arr[0]),initInt + "-" + finalInt );
+                    map.entrySet().forEach((entry) -> {
+                        System.out.println(entry);
+                    });
+                    System.out.println();
+                    //============================================================================================================================================================
+                 
+                    
                     System.out.println( ANSI_YELLOW + "GKDC (managment) : Sono stati richiesti chiavi dall'intevallo " + (initInt) + "-" + (initInt + finalInt - 1) + ANSI_RESET);
                     nodeList =  bT.getKeySet(bT  ,   initInt , initInt + finalInt - 1 );
 
@@ -200,15 +214,13 @@ public class GKDC {
    
         //periodicamente in un iperperiodo di slot temporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
         
-        for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs();   ){
+        for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs();){
 
             Thread.sleep(1000*10);
             byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
             System.out.println(ANSI_GREEN + "\nGKDC CHIAVE UTILIZZATA PER CRIPTARE IL MESSAGGIO DATA " + Arrays.toString(bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00()) + ANSI_RESET);
-            
-            Encrypter en = new Encrypter( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
+            Encryption en = new Encryption( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
             byte[] cipherText = en.encrypt(messaggioSuperSegreto);
-            
             Data msgData = new Data(cipherText, virtualTime.getValue() );
             DatagramPacket criptoPkt=new DatagramPacket(SerializationUtils.serialize((Serializable) msgData) , SerializationUtils.serialize((Serializable) msgData).length, multicast_iaddr,DATA_PORT);	
             System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " +msgData.toStringato() + ANSI_RESET );
@@ -218,6 +230,7 @@ public class GKDC {
                 virtualTime.increment();
                 virtualTime.notifyAll();
             }
+            
         }
         //per stoppare il thread managment
         // NON FUNZIONA
