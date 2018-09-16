@@ -1,6 +1,7 @@
 package groupkeydistribution;
 
 import groupkeydistribution.utilities.BinaryTree;
+import groupkeydistribution.utilities.Encrypter;
 import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.Singleton;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import messages.Data;
 import messages.JoinReq;
 import messages.JoinResp;
@@ -103,7 +105,10 @@ public class Node implements Serializable {
                 if (prova != null) {
                     prova.stream().filter((e) -> ( dataRcv.timeSlot == e.pos )).forEachOrdered((_item) -> {
                         try {
-                            byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
+                            Encrypter cipher = new Encrypter ( _item.getX00() );
+                            byte[] messaggioSuperSegreto = cipher.decrypt( dataRcv.getCipherText() );
+                            //byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
+                            
                             System.out.println(ANSI_RED + "NODE "+ ANSI_RESET + node_addr + ANSI_RED+ " Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
                         } catch (Exception e1) {
                         }
@@ -167,8 +172,11 @@ public class Node implements Serializable {
         
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++SENDING LEAVE MESSAGE +++++++++++++++++++++++++++++++++++++++++++++++++++++
         
-        int aa = (int )node_addr.toString().toCharArray()[node_addr.toString().length() -1 ];
+        String[] splitted = node_addr.toString().split(Pattern.quote("."));    
+        int aa = Integer.valueOf( ( splitted[splitted.length - 1] ));        
+        System.out.println("-> aaaaaaa" + "       " + node_addr.toString());
         
+           
         if( (aa % 2) == 0 ){
             int ts = Singleton.getIstance().getValue();
             
@@ -183,6 +191,7 @@ public class Node implements Serializable {
                 while ( Singleton.getIstance().getValue() != ts + 2){
                     
                 }
+                
                 management_sock.send(pkt3);
             
             }

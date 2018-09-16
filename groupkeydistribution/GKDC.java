@@ -2,6 +2,7 @@ package groupkeydistribution;
 
 
 import groupkeydistribution.utilities.BinaryTree;
+import groupkeydistribution.utilities.Encrypter;
 import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.Node;
 import groupkeydistribution.utilities.Singleton;
@@ -171,17 +172,12 @@ public class GKDC {
                     }
 
                 } 
+                
+                
                 System.out.println(ANSI_YELLOW + "Leaving thread exit " + ANSI_RESET);
             }
         };
         leavingThread.start();
-        
-
-        
-        
-        
-        
-        
         
         
         //periodicamente in un iperperiodo di slot temporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
@@ -190,8 +186,15 @@ public class GKDC {
 
             Thread.sleep(1000*10);
             byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
-            Encryption en = new Encryption( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
-            byte[] cipherText = en.encrypt(messaggioSuperSegreto);
+            
+            
+            Encrypter aesEn = new Encrypter( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00() );
+            byte[] cipherText = aesEn.encrypt(messaggioSuperSegreto);
+
+            //Encryption en = new Encryption( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
+            //byte[] cipherText = en.encrypt(messaggioSuperSegreto);
+            
+            
             Data msgData = new Data(cipherText, virtualTime.getValue() );
             //System.out.println("DEBUG messaggio generato: " + msgData.toStringato()); //funziona: è lo stesso messaggio
             //beccare la lungheza di msgData.toString()
