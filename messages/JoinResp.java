@@ -19,12 +19,24 @@ public class JoinResp implements java.io.Serializable{
     
     private ArrayList<Node> keySet;
     
+    private byte[] k2;
+
+    public byte[] getK2() {
+        return k2;
+    }
+
+    public void setK2(byte[] k2) {
+        this.k2 = k2;
+    }
+    
     /**
      * costruttore 
      * @param keySet 
+     * @param k2 
      */
-    public JoinResp(ArrayList<Node> keySet) {
+    public JoinResp(ArrayList<Node> keySet,byte[] k2) {
         this.keySet = keySet;
+        this.k2 = k2;
     }
     /**
      * 

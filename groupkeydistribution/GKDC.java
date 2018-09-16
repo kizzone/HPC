@@ -63,7 +63,7 @@ public class GKDC {
     private byte[] k2 = new byte[16];
     private BinaryTree bT = null;
     //=====================================================================================================================================================================
-    private Map<String, String> map = new HashMap<String, String>();
+    private Map<String, Integer> map = new HashMap<String, Integer>();
     
 
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
@@ -74,7 +74,7 @@ public class GKDC {
         //----------------------------------------------------------------------
         
         Singleton virtualTime = Singleton.getIstance();
-        virtualTime.setDepth(3); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
+        virtualTime.setDepth(5); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
         virtualTime.setLeafs( (int) Math.pow(2,virtualTime.getDepth()) );
 
         // create virtual IP STACK
@@ -124,16 +124,14 @@ public class GKDC {
                     int initInt = virtualTime.getValue();
                     ArrayList<Node> nodeList = new ArrayList<>();
                     
-                    
                     //============================================================================================================================================================
-                    map.put(getAddress(arr[0]),initInt + "-" + finalInt );
+                    map.put(getAddress(arr[0]),initInt + finalInt - 1 );
                     map.entrySet().forEach((entry) -> {
                         System.out.println(entry);
                     });
                     System.out.println();
                     //============================================================================================================================================================
                  
-                    
                     System.out.println( ANSI_YELLOW + "GKDC (managment) : Sono stati richiesti chiavi dall'intevallo " + (initInt) + "-" + (initInt + finalInt - 1) + ANSI_RESET);
                     nodeList =  bT.getKeySet(bT  ,   initInt , initInt + finalInt - 1 );
 
@@ -142,7 +140,7 @@ public class GKDC {
                     }
 
                     //sending join response to node arr[0]
-                    JoinResp response = new JoinResp(  nodeList );
+                    JoinResp response = new JoinResp(  nodeList,k2  );
                     String addr = GKDC.getAddress( arr[0] );
                     //System.out.println("indirizzo : " + addr);//debug
                     try {
@@ -186,12 +184,14 @@ public class GKDC {
                     finally{
                         UnpredictableLeave uL = (UnpredictableLeave) SerializationUtils.deserialize(pktrcv.getData());
                         System.out.println("LEAVE MESSAGE RECEIVED from " + uL.getNode() + "  relativo al time  slot: " + uL.getCurrentTimeSlot());
-                        //cambiare k2, riaggiornare l'albero e avvisare tutti i nodi
-                        new Random().nextBytes(k2);
+                        //cambiare k2, riaggiornare l'albero e avvisare tutti i nodi tranne quello del leaving
+                        //da rimuovere nella lista dei nodi connessi
+                        System.out.println(ANSI_YELLOW + "Thread" + getName() + " removed from map " + uL.getNode()   + ANSI_RESET);
+                        map.remove( uL.getNode() );
                         
+                        new Random().nextBytes(k2);
                         //riscrive su bT? dovrebbe...
                         try {
-                            
                             bT.buildTree( bT.getRoot() , virtualTime.getDepth() ,k2);
                         } catch (NoSuchAlgorithmException ex) {
                             Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
@@ -202,7 +202,40 @@ public class GKDC {
                             bT.traverseInOrder( bT.getRoot() );
                         }
                         //avvisare tutti i nodi
+                        //TODO : bella funzione che fa quella roba che serve
                         
+                        
+                        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                            
+                            ArrayList<Node> nodeList = new ArrayList<>();
+                            System.out.println( ANSI_YELLOW + "GKDC (leaving) : Rimando le  chiavi dall'intevallo " + (virtualTime.getValue()) + "-" + (entry.getValue()) + ANSI_RESET);
+                            nodeList =  bT.getKeySet( bT , virtualTime.getValue(), ( entry.getValue()) );
+
+                            for ( Node e : nodeList) {
+                                System.out.println(  ANSI_YELLOW + "GKDC:  Devo mandare a " + entry.getKey() + " le chiavi di riga "+ e.riga +" e posizione: " + e.pos + " " + ANSI_RESET );
+                            }
+
+                            //sending join response to node entry.getKey()
+                            JoinResp response = new JoinResp(  nodeList, k2);
+                            String addr = entry.getKey();
+                            //System.out.println("indirizzo : " + addr);//debug
+                            try {
+
+                                InetAddress resp_addr = Inet4Address.getByName(addr); 
+                                byte[] data = SerializationUtils.serialize((Serializable) response); 
+                                DatagramPacket pkt2 =new DatagramPacket( data , data.length, resp_addr ,GKDC.MANAGEMENT_PORT);
+                                System.out.println( ANSI_YELLOW + "GKDC Send new response message to : " + resp_addr.toString() + ANSI_RESET);
+                                management_sock.send(pkt2);
+                                //System.out.println( ANSI_RED + "Send ok " + ANSI_RESET); //DEBUG
+
+                            } catch (UnknownHostException ex) {
+                                Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            
+                        }
+                           
                     }
 
                 } 
@@ -216,6 +249,11 @@ public class GKDC {
         
         for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs();){
 
+            //controllo se i nodi nella mappa possono ancora stare nell'intervallo
+            
+            map.entrySet().removeIf(e-> e.getValue() == virtualTime.getValue() );
+            
+            
             Thread.sleep(1000*10);
             byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
             System.out.println(ANSI_GREEN + "\nGKDC CHIAVE UTILIZZATA PER CRIPTARE IL MESSAGGIO DATA " + Arrays.toString(bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00()) + ANSI_RESET);
@@ -235,7 +273,6 @@ public class GKDC {
         //per stoppare il thread managment
         // NON FUNZIONA
         stop = true;
-    
 
     }
         

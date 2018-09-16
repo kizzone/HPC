@@ -14,6 +14,7 @@ import it.unipr.netsec.ipstack.udp.UdpLayer;
 import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
@@ -144,31 +145,47 @@ public class Node implements Serializable {
         //System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData()) + " in the time slot " + timeSlots.getValue() + " " + ANSI_RESET); //DEBUG
         management_sock.send(pkt2);
 
-        //-----------------------------------------------------------------------------------
+        //------------------------------------------------------in attesa di eventuali messaggi di JOINRESP-----------------------------
+        
+        
+        Thread joinResp = new Thread("joinResp") {
+        @Override
+        public void run(){
 
-        byte[] bufResp =new byte[1024];
-        DatagramPacket pktresp = new DatagramPacket(bufResp,bufResp.length);
-        System.out.println("\n\n NODE IN ATTESA DI UNA RISPOSTA!!!\n\n");
+            while(true){
+                
+                byte[] bufResp =new byte[1024];
+                DatagramPacket pktresp = new DatagramPacket(bufResp,bufResp.length);
+                System.out.println("\n\n NODE IN ATTESA DI UNA RISPOSTA!!!\n\n");
 
-        try {
-            management_sock.receive(pktresp);
-        } catch (IOException ex) {
-            Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
-        }
+                try {
+                    management_sock.receive(pktresp);
+                } catch (IOException ex) {
+                    Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-        System.out.println("\n\n NODE: rivevuto il messaggio!!!\n\n");//DEBUG
-        JoinResp jR = (JoinResp) SerializationUtils.deserialize(pktresp.getData());
-        System.out.println( ANSI_RED + "Node["+node_addr+"]: result request : "+ jR.toStringato() + ANSI_RESET);//DEBUG
-        jR.receivedKey(); // DEBUG  stampa le chiavi ricevute
+                System.out.println("\n\n NODE: rivevuto il messaggio!!!\n\n");//DEBUG
+                JoinResp jR = (JoinResp) SerializationUtils.deserialize(pktresp.getData());
+                System.out.println( ANSI_RED + "Node["+node_addr+"]: result request : "+ jR.toStringato() + ANSI_RESET);//DEBUG
+                jR.receivedKey(); // DEBUG  stampa le chiavi ricevute
 
-        try {
-            prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), Singleton.getIstance().getDepth(),k2 );
-        } catch (NoSuchAlgorithmException e) {
-        }
+                try {
+                    prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), Singleton.getIstance().getDepth(),jR.getK2());
+                } catch (NoSuchAlgorithmException e) {
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+  
+        }};
+        
+        joinResp.start();
+        
         
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++SENDING LEAVE MESSAGE +++++++++++++++++++++++++++++++++++++++++++++++++++++
         char aa = ( char  )node_addr.toString().toCharArray()[node_addr.toString().length() -1 ];
-        int a= Integer.parseInt(String.valueOf(aa));
+        int a =  Integer.parseInt(String.valueOf(aa));
         if( ( a % 2) != 0 ){
             int ts = Singleton.getIstance().getValue();
             
