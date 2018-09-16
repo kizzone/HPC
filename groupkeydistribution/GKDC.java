@@ -2,6 +2,7 @@ package groupkeydistribution;
 
 
 import groupkeydistribution.utilities.BinaryTree;
+import groupkeydistribution.utilities.Encrypter;
 import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.Node;
 import groupkeydistribution.utilities.Singleton;
@@ -69,6 +70,7 @@ public class GKDC {
         //----------------------------------------------------------------------
         
         Singleton virtualTime = Singleton.getIstance();
+        
         virtualTime.setDepth(3); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
         virtualTime.setLeafs( (int) Math.pow(2,virtualTime.getDepth()) );
 
@@ -198,18 +200,24 @@ public class GKDC {
    
         //periodicamente in un iperperiodo di slot temporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
         
-        for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs(); virtualTime.increment() ){
+        for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs();   ){
 
             Thread.sleep(1000*10);
             byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
             System.out.println(ANSI_GREEN + "\nGKDC CHIAVE UTILIZZATA PER CRIPTARE IL MESSAGGIO DATA " + Arrays.toString(bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00()) + ANSI_RESET);
-            Encryption en = new Encryption( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
+            
+            Encrypter en = new Encrypter( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
             byte[] cipherText = en.encrypt(messaggioSuperSegreto);
+            
             Data msgData = new Data(cipherText, virtualTime.getValue() );
             DatagramPacket criptoPkt=new DatagramPacket(SerializationUtils.serialize((Serializable) msgData) , SerializationUtils.serialize((Serializable) msgData).length, multicast_iaddr,DATA_PORT);	
             System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " +msgData.toStringato() + ANSI_RESET );
             data_sock.send(criptoPkt);
             
+            synchronized(virtualTime){
+                virtualTime.increment();
+                virtualTime.notifyAll();
+            }
         }
         //per stoppare il thread managment
         // NON FUNZIONA
