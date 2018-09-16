@@ -2,7 +2,6 @@ package groupkeydistribution;
 
 
 import groupkeydistribution.utilities.BinaryTree;
-import groupkeydistribution.utilities.Encrypter;
 import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.Node;
 import groupkeydistribution.utilities.Singleton;
@@ -19,10 +18,12 @@ import it.unipr.netsec.ipstack.udp.UdpLayer;
 import it.unipr.netsec.nemo.ip.IpLink;
 import it.unipr.netsec.nemo.ip.IpLinkInterface;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,6 +58,7 @@ public class GKDC {
     
     //Chiave k2
     private byte[] k2 = new byte[16];
+    private BinaryTree bT = null;
     //======================================================================================================================================================================
 
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
@@ -88,7 +90,7 @@ public class GKDC {
         data_sock.send(pkt);
 
         //inizializzazione albero chiavi
-        BinaryTree bT = new BinaryTree(k2);
+        bT = new BinaryTree(k2);
         groupkeydistribution.utilities.Node node = bT.buildTree(bT.getRoot(),virtualTime.getDepth() ,k2);
         bT.traverseInOrder(node);
 
@@ -169,42 +171,45 @@ public class GKDC {
                         UnpredictableLeave uL = (UnpredictableLeave) SerializationUtils.deserialize(pktrcv.getData());
                         System.out.println("LEAVE MESSAGE RECEIVED from " + uL.getNode() + "  relativo al time  slot: " + uL.getCurrentTimeSlot());
                         //cambiare k2, riaggiornare l'albero e avvisare tutti i nodi
+                        new Random().nextBytes(k2);
+                        
+                        //riscrive su bT? dovrebbe...
+                        try {
+                            
+                            bT.buildTree( bT.getRoot() , virtualTime.getDepth() ,k2);
+                        } catch (NoSuchAlgorithmException ex) {
+                            Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (UnsupportedEncodingException ex) {
+                            Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                        }finally{
+                            System.out.println("IL NUOVO ALBERO E' DIVENTATO >> \n");
+                            bT.traverseInOrder( bT.getRoot() );
+                        }
+                        //avvisare tutti i nodi
+                        
                     }
 
                 } 
-                
-                
                 System.out.println(ANSI_YELLOW + "Leaving thread exit " + ANSI_RESET);
             }
         };
         leavingThread.start();
         
-        
+   
         //periodicamente in un iperperiodo di slot temporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
         
         for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs(); virtualTime.increment() ){
 
             Thread.sleep(1000*10);
             byte[] messaggioSuperSegreto = "Domenico è troppo bello (capisci tu quale)".getBytes(StandardCharsets.UTF_8);
-            
-            
-            Encrypter aesEn = new Encrypter( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00() );
-            byte[] cipherText = aesEn.encrypt(messaggioSuperSegreto);
-
-            //Encryption en = new Encryption( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
-            //byte[] cipherText = en.encrypt(messaggioSuperSegreto);
-            
-            
+            System.out.println("\nCHIAVE UTILIZZATA PER CRIPTARE IL MESSAGGIO DATA " + Arrays.toString(bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00()));
+            Encryption en = new Encryption( bT.search(bT.getRoot(),virtualTime.getDepth(), virtualTime.getValue() ).getX00());
+            byte[] cipherText = en.encrypt(messaggioSuperSegreto);
             Data msgData = new Data(cipherText, virtualTime.getValue() );
-            //System.out.println("DEBUG messaggio generato: " + msgData.toStringato()); //funziona: è lo stesso messaggio
-            //beccare la lungheza di msgData.toString()
-            //DatagramPacket criptoPkt=new DatagramPacket(    msgData.toStringato().getBytes("UTF-8"), msgData.toStringato().getBytes("UTF-8").length,multicast_iaddr,DATA_PORT);	
-            // riga di sopra funzionava
             DatagramPacket criptoPkt=new DatagramPacket(SerializationUtils.serialize((Serializable) msgData) , SerializationUtils.serialize((Serializable) msgData).length, multicast_iaddr,DATA_PORT);	
-
-            //System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " + new String(criptoPkt.getData(),0,criptoPkt.getLength()) + ANSI_RESET );
             System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " +msgData.toStringato() + ANSI_RESET );
             data_sock.send(criptoPkt);
+            
         }
         //per stoppare il thread managment
         // NON FUNZIONA

@@ -31,7 +31,7 @@ public class Main {
 		// GKDC address = 10.1.1.254
 		Ip4AddressPrefix gkdc_addr=(Ip4AddressPrefix)IpAddressUtils.addressPrefix(network.getPrefix(),254);
 		//modificato da 4 a 1 per motivi di "ordine"
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 1; i++) {
                     new Thread() {
                         @Override
 			public void run() {

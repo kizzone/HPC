@@ -10,6 +10,7 @@ package groupkeydistribution.utilities;
  * @author domenico
  */
 
+import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -49,6 +50,7 @@ public class Encryption {
      * @throws java.lang.Exception
      */
     public static byte[] decrypt(byte[] cipherText) throws Exception{
+        System.out.print("\n\nDECRPIPT METHOD KEY: " + Arrays.toString(key));
         SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
