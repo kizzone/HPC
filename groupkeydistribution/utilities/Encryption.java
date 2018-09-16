@@ -17,13 +17,21 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Encryption {
     
-    private static byte[] key;
+    private byte[] key;
+
+    private byte[] getKey() {
+        return key;
+    }
+
+    private void setKey(byte[] key) {
+        this.key = key;
+    }
 
     private static final String ALGORITHM = "AES";
 
     public Encryption(byte[] key)
     {
-        Encryption.key = key;
+        this.setKey(key);
     }
 
     /**
@@ -35,7 +43,8 @@ public class Encryption {
      */
     public byte[] encrypt(byte[] plainText) throws Exception
     {
-        SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
+        System.out.println("\n        ENCRPIPT METHOD KEY: " + Arrays.toString(this.getKey()));
+        SecretKeySpec secretKey = new SecretKeySpec(this.getKey(), ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
@@ -49,8 +58,8 @@ public class Encryption {
      * @return 
      * @throws java.lang.Exception
      */
-    public static byte[] decrypt(byte[] cipherText) throws Exception{
-        System.out.print("\n\nDECRPIPT METHOD KEY: " + Arrays.toString(key));
+    public byte[] decrypt(byte[] cipherText) throws Exception{
+        System.out.println("\n        DECRPIPT METHOD KEY: " + Arrays.toString(this.getKey()));
         SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey);

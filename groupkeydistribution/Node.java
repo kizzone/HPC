@@ -1,7 +1,6 @@
 package groupkeydistribution;
 
 import groupkeydistribution.utilities.BinaryTree;
-import groupkeydistribution.utilities.Encrypter;
 import groupkeydistribution.utilities.Encryption;
 import groupkeydistribution.utilities.Singleton;
 import java.io.IOException;
@@ -20,10 +19,10 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import messages.Data;
 import messages.JoinReq;
 import messages.JoinResp;
@@ -65,8 +64,9 @@ public class Node implements Serializable {
         // create virtual IP STACK
         Ip4Layer ip = new Ip4Layer(new NetInterface[]{new IpLinkInterface(network,node_addr)});
         UdpLayer udp = new UdpLayer(ip);
-        DatagramSocket management_sock=new DatagramSocket(udp,GKDC.MANAGEMENT_PORT);
+        DatagramSocket management_sock = new DatagramSocket(udp,GKDC.MANAGEMENT_PORT);
         DatagramSocket data_sock=new DatagramSocket(udp,GKDC.DATA_PORT);
+        DatagramSocket leave_sock = new DatagramSocket(udp,GKDC.LEAVE_PORT);
         
 
         //===================Il nodo ha un thread che gestisce i messaggi DATA che riceve dal GKDC==================================================
@@ -103,15 +103,13 @@ public class Node implements Serializable {
                 System.out.println(ANSI_RED + "NODE Thread DATA n " + node_addr + " ricevuto dato : " + dataRcv.toStringato() + ANSI_RESET);
                 
                 if (prova != null) {
-                    prova.stream().filter((e) -> ( dataRcv.timeSlot == e.pos )).forEachOrdered((_item) -> {
+                    prova.stream().filter((e) -> ( dataRcv.timeSlot == e.pos )).forEachOrdered(( _item ) -> {
                         try {
-                            Encrypter cipher = new Encrypter ( _item.getX00() );
-                            byte[] messaggioSuperSegreto = cipher.decrypt( dataRcv.getCipherText() );
-                            //byte[] messaggioSuperSegreto = Encryption.decrypt( dataRcv.getCipherText() );
-                            
-                            System.out.println(ANSI_RED + "NODE "+ ANSI_RESET + node_addr + ANSI_RED+ " Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) );
+                            byte[] messaggioSuperSegreto = new Encryption(_item.getX00()).decrypt( dataRcv.getCipherText());
+                            System.out.println(ANSI_RED + "NODE "+ ANSI_RESET + node_addr + ANSI_RED + " Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) + "\n chiave utilizzata: " + Arrays.toString(_item.getX00()) );
                         } catch (Exception e1) {
                         }
+                           
                     });
                 }
             }                                    
@@ -163,36 +161,28 @@ public class Node implements Serializable {
         System.out.println( ANSI_RED + "Node["+node_addr+"]: result request : "+ jR.toStringato() + ANSI_RESET);//DEBUG
         jR.receivedKey(); // DEBUG  stampa le chiavi ricevute
 
-        
         try {
             prova = BinaryTree.getKeysFromNodes(jR.getKeySet(), Singleton.getIstance().getDepth(),k2 );
         } catch (NoSuchAlgorithmException e) {
         }
         
-        
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++SENDING LEAVE MESSAGE +++++++++++++++++++++++++++++++++++++++++++++++++++++
-        
-        String[] splitted = node_addr.toString().split(Pattern.quote("."));    
-        int aa = Integer.valueOf( ( splitted[splitted.length - 1] ));        
-        System.out.println("-> aaaaaaa" + "       " + node_addr.toString());
-        
-           
-        if( (aa % 2) == 0 ){
+        char aa = ( char  )node_addr.toString().toCharArray()[node_addr.toString().length() -1 ];
+        int a= Integer.parseInt(String.valueOf(aa));
+        if( ( a % 2) != 0 ){
             int ts = Singleton.getIstance().getValue();
             
             //se non sforiamo l'intervallo allora lo mando
-            if (ts + 2 <  Singleton.getIstance().getLeafs() ){
-                
+            if (ts + 2 <  Singleton.getIstance().getLeafs() ){            
                 UnpredictableLeave uL = new UnpredictableLeave ((ts + 2) ,node_addr.toString());
                 byte[] leaveMessage = SerializationUtils.serialize(uL); 
                 DatagramPacket pkt3 = new DatagramPacket(leaveMessage,leaveMessage.length, point_addr ,GKDC.LEAVE_PORT);
                 System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nUNPREDICTABLE LEAVE in the time slot " + (ts + 2)  + " " + ANSI_RESET); //DEBUG
                 //BUSY WAITING....
                 while ( Singleton.getIstance().getValue() != ts + 2){
-                    
+                    System.out.println("LE UVA");
                 }
-                
-                management_sock.send(pkt3);
+                leave_sock.send(pkt3);
             
             }
             
