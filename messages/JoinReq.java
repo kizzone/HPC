@@ -6,13 +6,20 @@
 package messages;
 
 /**
- * messaggio di join che un nodo manda al kdc 
+ * Messaggio di join che un nodo manda al GKDC 
  * @author D&D
  */
 
 public class JoinReq {
           
+    /**
+     * Slot temporale in cui arriva la richiesta di JOIN
+     */
     private final int timeSlot;
+    
+    /**
+     * Indirizzo IP del nodo
+     */
     private final String ipAdress;
     
     /**
@@ -42,8 +49,8 @@ public class JoinReq {
     }
     
     /**
-     * Ritorna stringa che rappresenta il messaggio di request 
-     * @return stringa 
+     * Ritorna la stringa che rappresenta il messaggio di request 
+     * @return Stringa 
      */
     @Override
     public String toString(){

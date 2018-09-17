@@ -31,26 +31,48 @@ import messages.UnpredictableLeave;
 import org.apache.commons.lang.SerializationUtils;
 
 /**
- * 
+ * Classe che rappresenta un nodo generico della rete che richiede di entrare nella rete
  * @author domenico
  */
 
 public class Node implements Serializable {
     
+    /**
+     *  Reset color
+     */
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
+
+    /**
+     *  Red color
+     */
     public static final String ANSI_RED = "\u001B[31m";
+
+    /**
+     *  Green Color
+     */
     public static final String ANSI_GREEN = "\u001B[32m";
+
+    /**
+     *  Yellow color
+     */
     public static final String ANSI_YELLOW = "\u001B[33m";
+
+    /**
+     *  Blue color
+     */
     public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
+    
+    /**
+     *  ArrayList che rappresenta la lista di nodi dell'albero (chiavi) ricevute
+     */
     public ArrayList<groupkeydistribution.utilities.Node> prova; 
+    /**
+     * Array di byte che rappresenta la chiave k2 in possesso del nodo
+     */
     private byte [] k2 ;
    
     /**
-     * 
+     * Il costruttore del nodo si occupa di inizializzarlo, avviare i suoi thread per  gestire i messaggi ricevuti, mandare richieste di join e leave
      * @author domenico
      * @param network
      * @param gkdc_addr
@@ -69,15 +91,12 @@ public class Node implements Serializable {
         DatagramSocket data_sock=new DatagramSocket(udp,GKDC.DATA_PORT);
         DatagramSocket leave_sock = new DatagramSocket(udp,GKDC.LEAVE_PORT);
         
-
-        //===================Il nodo ha un thread che gestisce i messaggi DATA che riceve dal GKDC==================================================
-
+        //Il nodo ha un thread che gestisce i messaggi DATA che riceve dal GKDC
         Thread dataThread = new Thread("data") {
         @Override
         public void run(){
 
-            System.out.println(ANSI_RED + "NODE:  Thread  " + getName() + " is running "  + ANSI_RESET);
-            //Il primo messaggio è quello di helloworld poi da togliere, per adesso lo tengo per vedere se funziona
+            System.out.println(ANSI_RED + "NODE: "+ node_addr + "  Thread  " + getName() + " is running "  + ANSI_RESET);
             byte[] buf=new byte[16];
             DatagramPacket pkt = new DatagramPacket(buf,buf.length);
             try {
@@ -90,7 +109,6 @@ public class Node implements Serializable {
             k2 = pkt.getData();
             System.out.println( ANSI_RED + "Node[" + node_addr + "]: k2 received: " + BinaryTree.bytesToHex(k2) + ANSI_RESET);
             
-
             while(true){
                 buf = new byte[1024];
                 pkt = new DatagramPacket(buf,buf.length);
@@ -107,7 +125,7 @@ public class Node implements Serializable {
                     prova.stream().filter((e) -> ( dataRcv.timeSlot == e.pos )).forEachOrdered(( _item ) -> {
                         try {
                             byte[] messaggioSuperSegreto = new Encryption(_item.getX00()).decrypt( dataRcv.getCipherText());
-                            System.out.println(ANSI_RED + "NODE "+ ANSI_RESET + node_addr + ANSI_RED + " Thread DATA : ricevuto " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) + "\n chiave utilizzata: " + Arrays.toString(_item.getX00()) );
+                            System.out.println(ANSI_RED + "NODE "+ ANSI_RESET + node_addr + ANSI_RED + " Thread DATA : decriptato " + ANSI_RESET + new String( messaggioSuperSegreto, Charset.forName("UTF-8")) + " chiave utilizzata per decript: " + Arrays.toString(_item.getX00()) );
                         } catch (Exception e1) {
                         }
                            
@@ -119,16 +137,15 @@ public class Node implements Serializable {
         dataThread.start();
         
         Thread.sleep(1000);
-        //-------------------------------------------Mandar la richiesta di join----------------------------- 
+        
+        //Mandar la richiesta di join
         int maxSlots = Singleton.getIstance().getLeafs() - 1;
         //System.out.println(maxSlots); //DEBUG
-        
         int nonChiamarloI = ThreadLocalRandom.current().nextInt( maxSlots );
         
         System.out.println("NODE ["+ node_addr + "] ha estratto: " + nonChiamarloI  );
         Thread.sleep( nonChiamarloI * 10000);
         //System.out.println ("Ip4layer " + ip.toString());//DEBUG
-        
         int rimanenza = 4; //TODO: da rendere dinamico anche questo
        
         if( nonChiamarloI + rimanenza > maxSlots){
@@ -136,7 +153,7 @@ public class Node implements Serializable {
         }
         
         JoinReq richiesta = new JoinReq( rimanenza,ip.toString() );
-        System.out.println("NODE " + ip.toString() + ": tempo che sto nel gruppo " + rimanenza);//DEBUG 
+        //System.out.println(" \nNODE " + ip.toString() + ": tempo che sto nel gruppo " + rimanenza);//DEBUG 
         
         byte[] msgToSend = richiesta.toString().getBytes();
         InetAddress point_addr = Inet4Address.getByName("10.1.1.254") ; 
@@ -145,9 +162,7 @@ public class Node implements Serializable {
         //System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nData " + new String(pkt2.getData()) + " in the time slot " + timeSlots.getValue() + " " + ANSI_RESET); //DEBUG
         management_sock.send(pkt2);
 
-        //------------------------------------------------------in attesa di eventuali messaggi di JOINRESP-----------------------------
-        
-        
+        //Thread in attesa di eventuali messaggi di JOIN-RESP
         Thread joinResp = new Thread("joinResp") {
         @Override
         public void run(){
@@ -156,7 +171,7 @@ public class Node implements Serializable {
                 
                 byte[] bufResp =new byte[1024];
                 DatagramPacket pktresp = new DatagramPacket(bufResp,bufResp.length);
-                System.out.println("\n\n NODE IN ATTESA DI UNA RISPOSTA!!!\n\n");
+                //System.out.println("\n\n NODE IN ATTESA DI UNA RISPOSTA!!!\n\n");
 
                 try {
                     management_sock.receive(pktresp);
@@ -164,7 +179,7 @@ public class Node implements Serializable {
                     Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                System.out.println("\n\n NODE: rivevuto il messaggio!!!\n\n");//DEBUG
+                //System.out.println("\n NODE:" + node_addr + " rivevuto un  messaggio di RESPONSE");//DEBUG
                 JoinResp jR = (JoinResp) SerializationUtils.deserialize(pktresp.getData());
                 System.out.println( ANSI_RED + "Node["+node_addr+"]: result request : "+ jR.toStringato() + ANSI_RESET);//DEBUG
                 jR.receivedKey(); // DEBUG  stampa le chiavi ricevute
@@ -175,28 +190,24 @@ public class Node implements Serializable {
                 } catch (UnsupportedEncodingException ex) {
                     Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
             }
-  
         }};
         
         joinResp.start();
         
-        
-        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++SENDING LEAVE MESSAGE +++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //SENDING LEAVE MESSAGE
         char aa = ( char  )node_addr.toString().toCharArray()[node_addr.toString().length() -1 ];
         int a =  Integer.parseInt(String.valueOf(aa));
-        if( ( a % 2) != 0 ){
-            int ts = Singleton.getIstance().getValue();
+        if( ( a % 2 ) != 0 ){
             
+            int ts = Singleton.getIstance().getValue();
             //se non sforiamo l'intervallo allora lo mando
             if (ts + 2 <  Singleton.getIstance().getLeafs() ){            
                 UnpredictableLeave uL = new UnpredictableLeave ((ts + 2) ,node_addr.toString());
                 byte[] leaveMessage = SerializationUtils.serialize(uL); 
                 DatagramPacket pkt3 = new DatagramPacket(leaveMessage,leaveMessage.length, point_addr ,GKDC.LEAVE_PORT);
                 System.out.println( ANSI_RED + "Send to : " + point_addr.toString() + ANSI_BLUE +"\nUNPREDICTABLE LEAVE in the time slot " + (ts + 2)  + " " + ANSI_RESET); //DEBUG
-                //BUSY WAITING....
-
+                //WAITING....
                 synchronized( Singleton.getIstance() ){
                     while(Singleton.getIstance().getValue() != ts + 2 ){
                         Singleton.getIstance().wait();
@@ -206,9 +217,6 @@ public class Node implements Serializable {
                 leave_sock.send(pkt3);
             
             }
-            
-        }
-        
+        } 
     }
-    
 }

@@ -9,27 +9,55 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * classe nodo dell'albero ha come parametri una chiave 2 interi che rappresentano la posizione che occupa il nodo nell'albero e i nodi di sx e dx
+ * Classe che rappresenta un nodo dell'albero delle chiavi
  * @author D&D
  */
 public class Node implements Serializable{
     
-    
+    /**
+     * chiave segreta del nodo
+     */
     private byte[] x00 = new byte[16];
+
+    /**
+     *  Profondità del nodo
+     */
     public int riga;
+
+    /**
+     *  "Colonna" del nodo
+     */
     public int pos;
+
+    /**
+     *  Nodo di sinistra
+     */
     protected Node left;
+
+    /**
+     *  Nodo di destra 
+     */
     protected Node right;
 
+    /**
+     *  Setter per la chiave del
+     * @param x00
+     */
     public void setX00(byte[] x00) {
         this.x00 = x00;
     }
 
+    /**
+     *  Getter per la chiave del nodo
+     * @return
+     */
     public byte[] getX00() {
         return x00;
     }
     
-    
+    /**
+     *  Costruttore per nodo
+     */
     public Node (){
         
         this.riga = 0;

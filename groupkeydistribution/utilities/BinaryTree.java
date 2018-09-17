@@ -17,19 +17,21 @@ import java.util.Random;
 
 public class BinaryTree {
 
+    
+    /**
+     * Radice dell'albero
+     */
     Node root;
     
     /**
-     * 
-     * @return root: testa dell'albero
+     * Getter per la radice dell'albero
+     * @return root
      */
-  
     public Node getRoot() {
         return root;
     }
     
     /**
-     * 
      * Costruttore dell'albero binario crea un nodo radice con una chiave (hash di random byte)
      * @param k2 array di byte che serve per calcolare la chiave finale
      * @throws NoSuchAlgorithmException
@@ -49,7 +51,7 @@ public class BinaryTree {
     }
     
     /**
-     * 
+     * Costruttore per albero parziale
      * @param n
      * @throws NoSuchAlgorithmException
      * @throws UnsupportedEncodingException 
@@ -128,9 +130,7 @@ public class BinaryTree {
     }
     
    /**
-     * 
-     * Ricerca di un nodo di "righe" e "colonne" nell'albero
-     * utilizzato in fase di costruzione dell'albero delle chiavi
+     * Ricerca di un nodo di "righe" e "colonne" nell'albero utilizzato in fase di costruzione dell'albero delle chiavi
      * @param node
      * @param h
      * @param p
@@ -155,10 +155,10 @@ public class BinaryTree {
     } 
     
     /**
-     * 
+     * Ricerca di un nodo nell'albero ad una data profondà
      * @param node
      * @param h
-     * @return 
+     * @return nodo trovato o null
      */
     public Node search(Node node,int h){
         if(node != null){
@@ -184,7 +184,7 @@ public class BinaryTree {
      * @param root
      * @param profondita
      * @param k2
-     * @return 
+     * @return radice dellàalbero
      * @throws UnsupportedEncodingException
      * @throws NoSuchAlgorithmException 
      */    
@@ -266,7 +266,7 @@ public class BinaryTree {
     
 
     /**
-     * 
+     * Converte byte in hex
      * @param hash
      * @return 
      */
@@ -308,22 +308,20 @@ public class BinaryTree {
      */
     public ArrayList<Node> getKeySet(BinaryTree b, int initInt, int endInt) {
         
-        //==========================andrà sostituito con get profondità albero
         int profonditaAlbero = b.maxDepth(b.getRoot()) ;
-        //==========================andrà sostituito con get profondità albero
-        
         int totNodes = (int) Math.pow(2, profonditaAlbero);
         //System.out.println("Numero di nodi sull'ultima riga: " + totNodes);
-        
         
         ArrayList<Node> nodeList = new ArrayList<>();
         for(int i = initInt; i <= endInt; i++) {
         	nodeList.add( b.search(b.getRoot(), profonditaAlbero, i) );
         }
         
+        /*
         for( Node elem : nodeList) {
-         //System.out.println("Nodo: "+ elem.riga + elem.pos);
+         System.out.println("Nodo: "+ elem.riga + elem.pos);
         }
+        */
         
         int oldLength = 0;
         
@@ -359,14 +357,11 @@ public class BinaryTree {
          System.out.println("Nodo: "+ elem.riga + elem.pos);
         }
          ===========================================DEBUG======================== */
-     
      return nodeList;
     }
     
     /**
-     * 
-     * 
-     * 
+     * Getter per la posizione superiore del nodo
      * @param n
      * @return 
      */
@@ -378,8 +373,7 @@ public class BinaryTree {
     }
     
     /**
-     * becca la profondità dell'albero
-     * 
+     * Calcola la profondità dell'albero
      * @param node
      * @return 
      */
@@ -400,7 +394,7 @@ public class BinaryTree {
     
     /**
      * 
-     * 
+     * Calcola il numero di nodi ad una data profondita
      * @param depth
      * @return 
      */
@@ -410,13 +404,13 @@ public class BinaryTree {
     
     /**
      * 
-     * 
      * @param bt
      * @param depth
      * @return 
      */
     public ArrayList<Node> getIntervalKeys (BinaryTree bt, int depth){
     	
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     	ArrayList<Node> tmpList = new ArrayList<> ();
     	
     	for( int i = 0; i < getLastRowSize(depth); i++ ) {
@@ -429,7 +423,6 @@ public class BinaryTree {
     }
     
     /**
-     * 
      * 
      * @param kSet
      * @param depth
