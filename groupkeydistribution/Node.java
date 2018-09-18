@@ -70,6 +70,11 @@ public class Node implements Serializable {
      * Array di byte che rappresenta la chiave k2 in possesso del nodo
      */
     private byte [] k2 ;
+    
+    /**
+     *  Boolean per fermare i thread del gkdc
+     */
+    private volatile boolean stop = false;
    
     /**
      * Il costruttore del nodo si occupa di inizializzarlo, avviare i suoi thread per  gestire i messaggi ricevuti, mandare richieste di join e leave
@@ -109,7 +114,7 @@ public class Node implements Serializable {
             k2 = pkt.getData();
             System.out.println( ANSI_RED + "Node[" + node_addr + "]: k2 received: " + BinaryTree.bytesToHex(k2) + ANSI_RESET);
             
-            while(true){
+            while(!stop){
                 buf = new byte[1024];
                 pkt = new DatagramPacket(buf,buf.length);
                 try {
@@ -131,7 +136,8 @@ public class Node implements Serializable {
                            
                     });
                 }
-            }                                    
+            }   
+            this.interrupt();
         }};
 
         dataThread.start();
@@ -149,7 +155,7 @@ public class Node implements Serializable {
         int rimanenza = 4; //TODO: da rendere dinamico anche questo
        
         if( nonChiamarloI + rimanenza > maxSlots){
-            rimanenza = maxSlots - nonChiamarloI +1;
+            rimanenza = maxSlots - nonChiamarloI + 1;
         }
         
         JoinReq richiesta = new JoinReq( rimanenza,ip.toString() );
@@ -167,7 +173,7 @@ public class Node implements Serializable {
         @Override
         public void run(){
 
-            while(true){
+            while(!stop){
                 
                 byte[] bufResp =new byte[1024];
                 DatagramPacket pktresp = new DatagramPacket(bufResp,bufResp.length);
@@ -191,6 +197,7 @@ public class Node implements Serializable {
                     Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            this.interrupt();
         }};
         
         joinResp.start();
@@ -198,9 +205,9 @@ public class Node implements Serializable {
         //SENDING LEAVE MESSAGE
         char aa = ( char  )node_addr.toString().toCharArray()[node_addr.toString().length() -1 ];
         int a =  Integer.parseInt(String.valueOf(aa));
+        
+        int ts = Singleton.getIstance().getValue();
         if( ( a % 2 ) != 0 ){
-            
-            int ts = Singleton.getIstance().getValue();
             //se non sforiamo l'intervallo allora lo mando
             if (ts + 2 <  Singleton.getIstance().getLeafs() ){            
                 UnpredictableLeave uL = new UnpredictableLeave ((ts + 2) ,node_addr.toString());
@@ -215,8 +222,24 @@ public class Node implements Serializable {
                 }
                 
                 leave_sock.send(pkt3);
-            
+        
             }
-        } 
+        }
+        else{
+            synchronized( Singleton.getIstance() ){
+                while(Singleton.getIstance().getValue() != ts + 4 ){
+                    Singleton.getIstance().wait();
+                }
+            }
+        }
+        stop = true;
+        management_sock.close();
+        data_sock.close();
+        leave_sock.close();
+        Thread.sleep(1000);
+        System.out.println("NODE "+ node_addr + " exit." );
+        
+        Thread.currentThread().interrupt();
+        
     }
 }

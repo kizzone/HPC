@@ -84,11 +84,10 @@ public class GKDC {
      */
     public static final int LEAVE_PORT = 4002;
 
-    //TODO: aggiustare probabilmente non funziona lo volevo fare per fermare il cliclo nel thread managment e leaving
     /**
      *  Boolean per fermare i thread del gkdc
      */
-    protected volatile boolean stop = false;
+    private volatile boolean stop = false;
     
     /**
      * Chiave k2 con cui il GKDC calcola le chiavi
@@ -122,7 +121,7 @@ public class GKDC {
         new Random().nextBytes(k2); 
         
         Singleton virtualTime = Singleton.getIstance();
-        virtualTime.setDepth(5); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
+        virtualTime.setDepth(6); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
         virtualTime.setLeafs( (int) Math.pow(2,virtualTime.getDepth()) );
 
         // create virtual IP STACK
@@ -205,90 +204,93 @@ public class GKDC {
                 }
 
             }
-
             System.out.println(ANSI_YELLOW + "Managment thread exit " + ANSI_RESET);
+            this.interrupt();
             }
         };
         managementThread.start();
         
         //il thread di leaving si occupa di gestire i messaggi di unpredictable leave, ricalcola la nuova k2 genera un nuovo albero di chiavi e avvisa i nodi collegati con le nuove chiavi
         Thread leavingThread = new Thread("leaving") {
-        @Override
-        @SuppressWarnings("empty-statement")
-        public void run(){
+            @Override
+            @SuppressWarnings("empty-statement")
+            public void run(){
 
-            System.out.println(ANSI_YELLOW + "Thread  " + getName() + " is running "  + ANSI_RESET);
-            byte[] buf=new byte[1024];
-            DatagramPacket pktrcv = new DatagramPacket(buf,buf.length);
-            while(!stop){
-                try {
-                    leave_sock.receive(pktrcv);
-                } catch (IOException ex) {
-                    Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                finally{
-                    UnpredictableLeave uL = (UnpredictableLeave) SerializationUtils.deserialize(pktrcv.getData());
-                    System.out.println(ANSI_YELLOW + "LEAVE MESSAGE RECEIVED from " + uL.getNode() + "  relativo al time  slot: " + uL.getCurrentTimeSlot() + ANSI_RESET);
-                    //cambiare k2, riaggiornare l'albero e avvisare tutti i nodi collegati tranne quello del leaving
-                    //da rimuovere nella lista dei nodi connessi
-                    System.out.println(ANSI_YELLOW + "Thread" + getName() + " remove from map node: " + uL.getNode() + ANSI_RESET);
-                    map.remove( uL.getNode() );
-                    
-                    new Random().nextBytes(k2);
-                    //riscrivere bT
+                System.out.println(ANSI_YELLOW + "Thread  " + getName() + " is running "  + ANSI_RESET);
+                byte[] buf=new byte[1024];
+                DatagramPacket pktrcv = new DatagramPacket(buf,buf.length);
+                while(!stop){
                     try {
-                        bT.buildTree( bT.getRoot() , virtualTime.getDepth() ,k2);
-                    } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
+                        leave_sock.receive(pktrcv);
+                    } catch (IOException ex) {
                         Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
-                    }finally{
-                        System.out.println("IL NUOVO ALBERO E' DIVENTATO >> \n");
-                        bT.traverseInOrder( bT.getRoot() );
                     }
-                    //avvisare tutti i nodi
-                    for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                    finally{
+                        UnpredictableLeave uL = (UnpredictableLeave) SerializationUtils.deserialize(pktrcv.getData());
+                        System.out.println(ANSI_YELLOW + "LEAVE MESSAGE RECEIVED from " + uL.getNode() + "  relativo al time  slot: " + uL.getCurrentTimeSlot() + ANSI_RESET);
+                        //cambiare k2, riaggiornare l'albero e avvisare tutti i nodi collegati tranne quello del leaving
+                        //da rimuovere nella lista dei nodi connessi
+                        System.out.println(ANSI_YELLOW + "Thread" + getName() + " remove from map node: " + uL.getNode() + ANSI_RESET);
+                        map.remove( uL.getNode() );
 
-                        ArrayList<Node> nodeList = new ArrayList<>();
-                        System.out.println( ANSI_YELLOW + "GKDC (leaving) : Rimando le  chiavi dall'intevallo " + (virtualTime.getValue()) + "-" + (entry.getValue()) + ANSI_RESET);
-                        nodeList =  bT.getKeySet( bT , virtualTime.getValue(), ( entry.getValue()) );
-
-                        for ( Node e : nodeList) {
-                            System.out.println(  ANSI_YELLOW + "GKDC:  Devo mandare a " + entry.getKey() + " le chiavi di riga "+ e.riga +" e posizione: " + e.pos + " " + ANSI_RESET );
-                        }
-                        
-                        //sending join response to node entry.getKey()
-                        JoinResp response = new JoinResp(  nodeList, k2);
-                        String addr = entry.getKey();
-                        //System.out.println("indirizzo : " + addr);//debug
+                        new Random().nextBytes(k2);
+                        //riscrivere bT
                         try {
-
-                            InetAddress resp_addr = Inet4Address.getByName(addr); 
-                            byte[] data = SerializationUtils.serialize((Serializable) response); 
-                            DatagramPacket pkt2 =new DatagramPacket( data , data.length, resp_addr ,GKDC.MANAGEMENT_PORT);
-                            System.out.println( ANSI_YELLOW + "GKDC Thread leaving sending  new response message to : " + resp_addr.toString() + ANSI_RESET);
-                            management_sock.send(pkt2);
-                            //System.out.println( ANSI_RED + "Send ok " + ANSI_RESET); //DEBUG
-
-                        } catch (UnknownHostException ex) {
+                            bT.buildTree( bT.getRoot() , virtualTime.getDepth() ,k2);
+                        } catch (NoSuchAlgorithmException | UnsupportedEncodingException ex) {
                             Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (IOException ex) {
-                            Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                        }finally{
+                            System.out.println("IL NUOVO ALBERO E' DIVENTATO >> \n");
+                            bT.traverseInOrder( bT.getRoot() );
+                        }
+                        //avvisare tutti i nodi
+                        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+
+                            ArrayList<Node> nodeList = new ArrayList<>();
+                            System.out.println( ANSI_YELLOW + "GKDC (leaving) : Rimando le  chiavi dall'intevallo " + (virtualTime.getValue()) + "-" + (entry.getValue()) + ANSI_RESET);
+                            nodeList =  bT.getKeySet( bT , virtualTime.getValue(), ( entry.getValue()) );
+
+                            for ( Node e : nodeList) {
+                                System.out.println(  ANSI_YELLOW + "GKDC:  Devo mandare a " + entry.getKey() + " le chiavi di riga "+ e.riga +" e posizione: " + e.pos + " " + ANSI_RESET );
+                            }
+
+                            //sending join response to node entry.getKey()
+                            JoinResp response = new JoinResp(  nodeList, k2);
+                            String addr = entry.getKey();
+                            //System.out.println("indirizzo : " + addr);//debug
+                            try {
+
+                                InetAddress resp_addr = Inet4Address.getByName(addr); 
+                                byte[] data = SerializationUtils.serialize((Serializable) response); 
+                                DatagramPacket pkt2 =new DatagramPacket( data , data.length, resp_addr ,GKDC.MANAGEMENT_PORT);
+                                System.out.println( ANSI_YELLOW + "GKDC Thread leaving sending  new response message to : " + resp_addr.toString() + ANSI_RESET);
+                                management_sock.send(pkt2);
+                                //System.out.println( ANSI_RED + "Send ok " + ANSI_RESET); //DEBUG
+
+                            } catch (UnknownHostException ex) {
+                                Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(GKDC.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
                         }
 
                     }
 
-                }
+                } 
 
-            } 
-            System.out.println(ANSI_YELLOW + "Leaving thread exit " + ANSI_RESET);
+                System.out.println(ANSI_YELLOW + "Leaving thread exit " + ANSI_RESET);
+                leave_sock.close();
+                this.interrupt();
             }
         };
         leavingThread.start();
-
+        
+        
         //periodicamente in un iperperiodo di slot temporali il Gkdc invia dei messaggi data contenti (in chiaro) l'id dello slot temporale e criptato il messaggio verso i nodi
-        for ( virtualTime.setValue(0); virtualTime.getValue() < virtualTime.getLeafs();){
-
+        while( virtualTime.getValue() < virtualTime.getLeafs() ){
             //controllo se i nodi nella mappa possono ancora restare nell'intervallo
-            // qua ci sono gli errori con questa riga
+            // qua ci sono gli errori con questa riga 
             //map.entrySet().removeIf(e-> e.getValue() == virtualTime.getValue() );
 
             Iterator it = map.entrySet().iterator();
@@ -310,6 +312,7 @@ public class GKDC {
             DatagramPacket criptoPkt = new DatagramPacket(SerializationUtils.serialize((Serializable) msgData) , SerializationUtils.serialize((Serializable) msgData).length, multicast_iaddr,DATA_PORT);	
             System.out.println( ANSI_GREEN + "GKDC["+gkdc_addr+"]: send to "+ pkt.getAddress().getHostAddress() + ":" + pkt.getPort() + ": " +msgData.toStringato() + ANSI_RESET );
             data_sock.send(criptoPkt);
+            
             //avvisare il nodo che sta aspettando che l'intervello diventi quello impostato per mandare il messaggio di unpredictable leave
             synchronized(virtualTime){
                 virtualTime.increment();
@@ -317,10 +320,12 @@ public class GKDC {
             }
             
         }
+        
         //per stoppare il thread managment
-        // NON FUNZIONA
         stop = true;
-
+        Thread.sleep(1000);
+        System.out.println("GKDC exit.");
+        System.exit(0);
     }
         
     /**
