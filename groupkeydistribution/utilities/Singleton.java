@@ -31,15 +31,15 @@ public class Singleton {
 
     /**
      *  Getter per la profondita dell'albero delle chiavi
-     * @return
+     * @return depth: la profondità dell'albero
      */
-    public int getDepth() {
+    public int getDepth() {   
         return depth;
     }
 
     /**
      *  Setter per la profondita dell'albero delle chiavi
-     * @param depth
+     * @param depth profondità dell'albero
      */
     public void setDepth(int depth) {
         this.depth = depth;
@@ -47,7 +47,7 @@ public class Singleton {
     
     /**
      *  Getter per la il numero di foglie nell'ultimo livello dell'albero
-     * @return
+     * @return il numero di foglie sull'ultimo livello dell'albero
      */
     public int getLeafs() {
         return leafs;
@@ -55,7 +55,7 @@ public class Singleton {
 
     /**
      *  Setter per la il numero di foglie nell'ultimo livello dell'albero
-     * @param leafs
+     * @param leafs numero di foglie nell'ultimo livello dell'albero
      */
     public void setLeafs(int leafs) {
         this.leafs = leafs;
@@ -64,9 +64,8 @@ public class Singleton {
     private Singleton() {}
     
     /**
-     *  
      * Roba del singleton
-     * @return
+     * @return l'oggetto già instanziato oppure uno nuovo oggetto in caso non fosse già stato creato
      */
     public static Singleton getIstance() {
         if(istance == null)
@@ -76,7 +75,7 @@ public class Singleton {
     
     /**
      *  Setter per gli slot
-     * @param n
+     * @param n numero di slot temporali
      */
     public synchronized void setValue(int n){
         slot = n;
@@ -84,7 +83,7 @@ public class Singleton {
 
     /**
      *  Funzione che incrementa slot in modo protetto
-     * @return
+     * @return aumenta il campo slot di 1
      */
     public synchronized int increment(){
         return slot++;
@@ -92,7 +91,7 @@ public class Singleton {
        
     /**
      *  Getter per slot
-     * @return
+     * @return valore dello slot
      */
     public int getValue() { return slot; }
     

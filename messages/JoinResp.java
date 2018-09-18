@@ -29,7 +29,7 @@ public class JoinResp implements java.io.Serializable{
 
     /**
      * Getter per k2
-     * @return k2
+     * @return k2 array di byte per la chiave k2
      */
     public byte[] getK2() {
         return k2;
@@ -37,7 +37,7 @@ public class JoinResp implements java.io.Serializable{
 
     /**
      * Setter per k2
-     * @param k2 
+     * @param k2  array di byte che rappresenta la chiave k2
      */
     public void setK2(byte[] k2) {
         this.k2 = k2;
@@ -45,8 +45,8 @@ public class JoinResp implements java.io.Serializable{
     
     /**
      * Costruttore  del messaggio
-     * @param keySet 
-     * @param k2 
+     * @param keySet l'insieme più piccolo di chiavi da inviare al nodo da cui si ricaverà le chiavi
+     * @param k2 la chiave k2 del gkdc aggiornata con cui calcolare le chiavi successive
      */
     public JoinResp(ArrayList<Node> keySet,byte[] k2) {
         this.keySet = keySet;
@@ -54,14 +54,14 @@ public class JoinResp implements java.io.Serializable{
     }
     /**
      * Getter per il keySet
-     * @return ArrayList<> di nodi dell'albero che rappresenta il keySet 
+     * @return ArrayList di nodi dell'albero che rappresenta il keySet 
      */
     public ArrayList<Node> getKeySet() {
         return keySet;
     }
     /**
      * Setter per keySet
-     * @param keySet 
+     * @param keySet arraylist di nodi da inviare
      */
     public void setKeySet(ArrayList<Node> keySet) {
         this.keySet = keySet;

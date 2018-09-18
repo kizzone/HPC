@@ -79,11 +79,11 @@ public class Node implements Serializable {
     /**
      * Il costruttore del nodo si occupa di inizializzarlo, avviare i suoi thread per  gestire i messaggi ricevuti, mandare richieste di join e leave
      * @author domenico
-     * @param network
-     * @param gkdc_addr
-     * @throws java.io.IOException
-     * @throws java.lang.InterruptedException
-     * @throws java.lang.ClassNotFoundException
+     * @param network NEMO
+     * @param gkdc_addr indirizzo IP del GKDC
+     * @throws java.io.IOException eccezione lanciata
+     * @throws java.lang.InterruptedException eccezione lanciata
+     * @throws java.lang.ClassNotFoundException eccezione lanciata
      */
     
     public Node(IpLink network, Ip4Address gkdc_addr) throws IOException, InterruptedException, ClassNotFoundException {

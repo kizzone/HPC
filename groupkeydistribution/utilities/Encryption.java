@@ -5,16 +5,12 @@
  */
 package groupkeydistribution.utilities;
 
-/**
- * Classe utilizzata per criptare in maniera simmetrica un dato messaggio
- * @author domenico
- */
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- *
+ *  Classe utilizzata per criptare in maniera simmetrica un dato messaggio
  * @author domenico e stackoverflow lol
  */
 public class Encryption {
@@ -34,7 +30,7 @@ public class Encryption {
 
     /**
      * Setter per la chiave
-     * @param key 
+     * @param key array di byte da utilizzare come chiave k2
      */
     private void setKey(byte[] key) {
         this.key = key;
@@ -47,7 +43,7 @@ public class Encryption {
 
     /**
      *  Costruttore dell'oggetto con la chiave segreta
-     * @param key
+     * @param key chiave con cui inizializzare l'oggetto
      */
     public Encryption(byte[] key)
     {
@@ -56,9 +52,9 @@ public class Encryption {
 
     /**
      * Encrypts the given plain text
-     * @param plainText The plain text to encrypt
-     * @return 
-     * @throws java.lang.Exception
+     * @param plainText dato da criptare
+     * @return il plainText cifrato
+     * @throws java.lang.Exception eccezione lanciata
      */
     public byte[] encrypt(byte[] plainText) throws Exception
     {
@@ -71,9 +67,9 @@ public class Encryption {
 
     /**
      * Decrypts the given byte array
-     * @param cipherText The data to decrypt
-     * @return cipherText
-     * @throws java.lang.Exception
+     * @param cipherText Dato da decriptare
+     * @return cipherText decodificato 
+     * @throws java.lang.Exception eccezione lanciata
      */
     public byte[] decrypt(byte[] cipherText) throws Exception{
         //System.out.println("\n        DECRPIPT METHOD KEY: " + Arrays.toString(this.getKey()));

@@ -29,7 +29,7 @@ public class Data implements Serializable {
     /**
      * 
      * Recupera il timeSlot nel messaggio DATA
-     * @return 
+     * @return ritorna il valore del timeslot
      */
     public int getTimeSlot() {
         return timeSlot;
@@ -48,7 +48,7 @@ public class Data implements Serializable {
     
     /**
      * Getter per cipherText
-     * @return cipherText
+     * @return cipherText testo cifrato del messaggio
      */
     public byte[] getCipherText() {
         return cipherText;

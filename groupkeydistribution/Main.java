@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 
+ * Avvia la simulazione 
  * @author Luca Veltri
  */
 
@@ -19,11 +19,11 @@ public class Main {
 
 	/**
          * 
-         * @param args
-         * @throws IOException
-         * @throws InterruptedException
-         * @throws NoSuchAlgorithmException
-         * @throws Exception 
+         * @param args standars java args
+         * @throws IOException eccezione lanciata
+         * @throws InterruptedException eccezione lanciata
+         * @throws NoSuchAlgorithmException eccezione lanciata
+         * @throws Exception eccezione lanciata
          */
             public static void main(String[] args) throws IOException, InterruptedException, NoSuchAlgorithmException, Exception {
 		

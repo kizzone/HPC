@@ -24,8 +24,8 @@ public class UnpredictableLeave implements Serializable{
 
     /**
      *  Costruttore del messaggio
-     * @param currentTimeSlot
-     * @param node
+     * @param currentTimeSlot slot temporale attuale
+     * @param node indirizzo IP del nodo che ha inviato la richiesta di "unpredictable leave"
      */
     public UnpredictableLeave(int currentTimeSlot, String node) {
         this.currentTimeSlot = currentTimeSlot;
@@ -33,7 +33,7 @@ public class UnpredictableLeave implements Serializable{
     }
 
     /**
-     *  Getter per currentTimeSlot
+     * Getter per currentTimeSlot
      * @return currentTimeSlot: intervallo temporale corrente
      */
     public int getCurrentTimeSlot() {
@@ -42,7 +42,7 @@ public class UnpredictableLeave implements Serializable{
 
     /**
      *  Setter per currentTimeSlot
-     * @param currentTimeSlot
+     * @param currentTimeSlot time slot corrente
      */
     public void setCurrentTimeSlot(int currentTimeSlot) {
         this.currentTimeSlot = currentTimeSlot;
@@ -50,15 +50,15 @@ public class UnpredictableLeave implements Serializable{
 
     /**
      *  Getter per indirizzo IP del nodo
-     * @return
-     */
+     * @return stringa rappresentante l'indirizzo IP
+     */ 
     public String getNode() {
         return nodeIP;
     }
 
     /**
      *  Setter per indirizzo IP del nodo
-     * @param node
+     * @param node indirizzo IP del nodo
      */
     public void setNode(String node) {
         this.nodeIP = node;

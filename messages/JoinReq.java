@@ -7,7 +7,7 @@ package messages;
 
 /**
  * Messaggio di join che un nodo manda al GKDC 
- * @author D&D
+ * @author domenico;
  */
 
 public class JoinReq {
@@ -24,7 +24,7 @@ public class JoinReq {
     
     /**
      * getter per il timeslot
-     * @return 
+     * @return il valore di timeslot
      */
     public int getTimeSlot() {
         return timeSlot;
@@ -32,7 +32,7 @@ public class JoinReq {
     
     /**
      * getter per indirizzo ip
-     * @return ipAdress
+     * @return ipAdress rappresenta l'indirizzo IP del nodo che ha effettuato la richiesta
      */
     public String getIpAdress() {
         return ipAdress;
@@ -40,8 +40,8 @@ public class JoinReq {
     
     /**
      * costruttore 
-     * @param timeSlot
-     * @param ipAdress 
+     * @param timeSlot timeslot relativo alla richiesta di join
+     * @param ipAdress indirizzo IP del nodo che effettua la richiesta
      */
     public JoinReq(int timeSlot, String ipAdress) {
         this.timeSlot = timeSlot;
@@ -50,7 +50,7 @@ public class JoinReq {
     
     /**
      * Ritorna la stringa che rappresenta il messaggio di request 
-     * @return Stringa 
+     * @return Stringa  che rappresenta il messaggio di joinReq
      */
     @Override
     public String toString(){

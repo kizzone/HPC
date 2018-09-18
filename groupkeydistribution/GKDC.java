@@ -107,11 +107,11 @@ public class GKDC {
 
     /**
      * Costruttore si occupa di inizializzare il gkdc con i relativi paramentri, far partire i thread managment e leaving, infine di mandare i messaggi data negli slot temporali
-     * @param network
-     * @param gkdc_addr
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
-     * @throws Exception 
+     * @param network NEMO
+     * @param gkdc_addr indirizzo IP del GKDC
+     * @throws IOException eccezione lanciata
+     * @throws NoSuchAlgorithmException eccezione lanciata
+     * @throws Exception  eccezione lanciata
      */
     
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
@@ -332,7 +332,6 @@ public class GKDC {
      * Estrarre indirizzo IP da una stringa IPLayer
      * @author domenico
      */
-
     private static String getAddress(String string){
         String [] arr = string.split("\\[");
         String [] arr2 =  arr[1].split("\\]");

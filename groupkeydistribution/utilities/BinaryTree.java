@@ -11,7 +11,7 @@ import java.util.Random;
 
 /**
  * Rappresenta l'albero binario delle chiavi da utilizzare nei vari intervalli temporali
- * @author D&D
+ * @author domenico
  * 
  */
 
@@ -25,7 +25,7 @@ public class BinaryTree {
     
     /**
      * Getter per la radice dell'albero
-     * @return root
+     * @return root radice dell'albero
      */
     public Node getRoot() {
         return root;
@@ -34,8 +34,8 @@ public class BinaryTree {
     /**
      * Costruttore dell'albero binario crea un nodo radice con una chiave (hash di random byte)
      * @param k2 array di byte che serve per calcolare la chiave finale
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException 
+     * @throws NoSuchAlgorithmException eccezione lanciata
+     * @throws UnsupportedEncodingException  eccezione lanciata
      */
     
     public BinaryTree(byte [] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
@@ -52,9 +52,9 @@ public class BinaryTree {
     
     /**
      * Costruttore per albero parziale
-     * @param n
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException 
+     * @param n  nodo inizile
+     * @throws NoSuchAlgorithmException eccezione lanciata
+     * @throws UnsupportedEncodingException  eccezione lanciata
      */
     public BinaryTree(Node n) throws NoSuchAlgorithmException, UnsupportedEncodingException{  
         this.root =  n;
@@ -67,12 +67,12 @@ public class BinaryTree {
     /**
      * 
      * Funzione f0 utilizzata per collegare al ramo di sinistra di un nodo passato come parametro un nuovo nodo con chiave hash dell'array di byte del nodo passato
-     * @param current
-     * @param riga
-     * @param pos
-     * @param k2
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException 
+     * @param current nodo a cui applicare la funzione
+     * @param riga riga dell'albero
+     * @param pos colonna  dell'albero
+     * @param k2 chiave k2
+     * @throws NoSuchAlgorithmException eccezione lanciata
+     * @throws UnsupportedEncodingException  eccezione lanciata
      */
     
     public void f0 ( Node current, int riga , int pos , byte [] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
@@ -91,9 +91,9 @@ public class BinaryTree {
     
     /**
      * Xor per due array di byte
-     * @param a
-     * @param b
-     * @return 
+     * @param a array di byte
+     * @param b array di byte
+     * @return  xor dei due array
      */
     
     public static byte[] xor(byte[] a, byte[] b) {
@@ -109,12 +109,12 @@ public class BinaryTree {
     /**
      * 
      * Funzione f1 utilizzata per collegare al ramo di destra di un nodo passato come parametro un nuovo nodo con chiave hash dell'array di byte  incrementato
-     * @param current
-     * @param riga
-     * @param pos
-     * @param k2
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException 
+     * @param current nodo a cui applicare la funzione
+     * @param riga riga dell'albero
+     * @param pos colonna  dell'albero
+     * @param k2 chiave k2
+     * @throws NoSuchAlgorithmException eccezione lanciata
+     * @throws UnsupportedEncodingException eccezione lanciata
      */
     public void f1 ( Node current, int riga , int pos , byte [] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
     	
@@ -131,10 +131,10 @@ public class BinaryTree {
     
    /**
      * Ricerca di un nodo di "righe" e "colonne" nell'albero utilizzato in fase di costruzione dell'albero delle chiavi
-     * @param node
-     * @param h
-     * @param p
-     * @return 
+     * @param node nodo da cui partire per la ricerca
+     * @param h riga 
+     * @param p colonna
+     * @return nodo trovato oppure null
      */
     public Node search(Node node,int h, int p){
         if(node != null){
@@ -156,8 +156,8 @@ public class BinaryTree {
     
     /**
      * Ricerca di un nodo nell'albero ad una data profondà
-     * @param node
-     * @param h
+     * @param node nodo da ricercare
+     * @param h profondità
      * @return nodo trovato o null
      */
     public Node search(Node node,int h){
@@ -181,12 +181,12 @@ public class BinaryTree {
     /**
      * BuilTree prende in ingresso un nodo da considerare radice dell'albero e un intero che rappresenta la profondatità e costruisce un albero di chiavi con f0 e f1 
      * è brutta da vedere ma va sistemata ancora
-     * @param root
-     * @param profondita
-     * @param k2
+     * @param root nodo radice dell'albero
+     * @param profondita la profondità dell'albero da generare
+     * @param k2 chiave k2  con cui calcolare le chiavi successive
      * @return radice dellàalbero
-     * @throws UnsupportedEncodingException
-     * @throws NoSuchAlgorithmException 
+     * @throws UnsupportedEncodingException eccezione lanciata
+     * @throws NoSuchAlgorithmException  eccezione lanciata
      */    
     public Node buildTree (Node root, int profondita, byte[] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
      //* è brutta da vedere ma va sistemata ancora   
@@ -222,13 +222,13 @@ public class BinaryTree {
     
     /**
      * Generare un albero parziale a partire dal nodo
-     * @param root
-     * @param currDepth
-     * @param maxDepth
-     * @param k2
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException 
+     * @param root Radice da cui partire
+     * @param currDepth profondità attuale
+     * @param maxDepth massima profondità dell'albero
+     * @param k2 chiave k2
+     * @return nodo di partenza a cui sono stati collegati i nodi successivi
+     * @throws NoSuchAlgorithmException eccezione lanciata
+     * @throws UnsupportedEncodingException eccezione lanciata
      */
     public Node buildTree (Node root, int currDepth, int maxDepth, byte[] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{ 
        Node current = root;
@@ -252,7 +252,7 @@ public class BinaryTree {
     
     /**
      *  Stampa albero
-     * @param node
+     * @param node Radice dell'albero da stampare
      */
     public void traverseInOrder(Node node) {
         
@@ -267,8 +267,8 @@ public class BinaryTree {
 
     /**
      * Converte byte in hex
-     * @param hash
-     * @return 
+     * @param hash array di byte da stampare in HEX
+     * @return Stringa rappresentante l'array in HEX
      */
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder();
@@ -284,7 +284,7 @@ public class BinaryTree {
     
     /**
      * aumenta l'array di byte 
-     * @param hash
+     * @param array array da incrementare
      * @return array di byte aumentato
      */
     private byte[] incrementAtIndex(byte[] array, int index) {
@@ -304,7 +304,7 @@ public class BinaryTree {
      * @param b albero di chiavi
      * @param initInt inizio intervallo
      * @param endInt    fine intervallo
-     * @return ArrayList<>  che rappresenta i nodi contenti le chiavi per il dato intervallo
+     * @return ArrayList  che rappresenta i nodi contenti le chiavi per il dato intervallo
      */
     public ArrayList<Node> getKeySet(BinaryTree b, int initInt, int endInt) {
         
@@ -362,7 +362,7 @@ public class BinaryTree {
     
     /**
      * Getter per la posizione superiore del nodo
-     * @param n
+     * @param n nodo da considerare
      * @return 
      */
     private int getPrevPos(Node n) {
@@ -374,8 +374,8 @@ public class BinaryTree {
     
     /**
      * Calcola la profondità dell'albero
-     * @param node
-     * @return 
+     * @param node nodo da cui calcolare la profondità
+     * @return  profondità dell'albero binario
      */
     public int maxDepth(Node node) {
        if (node == null) {
@@ -395,18 +395,18 @@ public class BinaryTree {
     /**
      * 
      * Calcola il numero di nodi ad una data profondita
-     * @param depth
-     * @return 
+     * @param depth profondità dell'albero
+     * @return numero di elementi nella riga di profondità depth
      */
     private int getLastRowSize(int depth) {
     	return (int) Math.pow(2, depth);
     }
     
     /**
-     * 
-     * @param bt
-     * @param depth
-     * @return 
+     * Cerca i nodi minimi per il calcolo delle chiavi
+     * @param bt Albero binario delle chiavi
+     * @param depth profondità dell'albero
+     * @return nodi minimi che ti permettono di ottenere le chiavi per ogni intervallo
      */
     public ArrayList<Node> getIntervalKeys (BinaryTree bt, int depth){
     	
@@ -423,13 +423,13 @@ public class BinaryTree {
     }
     
     /**
-     * 
-     * @param kSet
-     * @param depth
-     * @param k2
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException 
+     * Metodo che deriva le chiavi dal key set ricevuto
+     * @param kSet il keySet ricevuto dal nodo
+     * @param depth profondità dell'albero
+     * @param k2 array di byte che rappresenta la chiave k2
+     * @return arraylist dei nodi dell'albero calcolati al partire dal kSet
+     * @throws NoSuchAlgorithmException eccezione lanciata
+     * @throws UnsupportedEncodingException eccezione lanciata
      */
     public static ArrayList<Node> getKeysFromNodes(ArrayList<Node> kSet, int depth, byte[] k2) throws NoSuchAlgorithmException, UnsupportedEncodingException{
     	

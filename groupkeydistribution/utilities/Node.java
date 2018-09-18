@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 /**
  * Classe che rappresenta un nodo dell'albero delle chiavi
- * @author D&D
+ * @author domenico;
  */
 public class Node implements Serializable{
     
@@ -40,8 +40,8 @@ public class Node implements Serializable{
     protected Node right;
 
     /**
-     *  Setter per la chiave del
-     * @param x00
+     *  Setter per la chiave del ndo
+     * @param x00 chiave segreta del nodo
      */
     public void setX00(byte[] x00) {
         this.x00 = x00;
@@ -49,7 +49,7 @@ public class Node implements Serializable{
 
     /**
      *  Getter per la chiave del nodo
-     * @return
+     * @return array di byte rappresentanti la chiave del nodo
      */
     public byte[] getX00() {
         return x00;
@@ -67,6 +67,10 @@ public class Node implements Serializable{
        
     }
     
+    /**
+     *  To string override
+     * @return stringa contenente la chiave e il numero di riga e colonna associate
+     */
     @Override
     public String toString() {
     	return "Key: " + Arrays.toString(this.x00) + " row: " + this.riga  + " pos: " + this.pos;  
