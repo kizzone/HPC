@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Davide Piccinini (282364)
  * @author Domenico Barretta (289802)
  */
+@Deprecated
 public class Encrypter {
     private String algo="AES";
     private Cipher cipher;

@@ -18,11 +18,24 @@ public class timeSlots {
     /*@GuardedBy("this") */
     private volatile int slot;
 
+    /**
+     *  getter
+     * @return
+     */
     public int getValue() { return slot; }
     
+    /**
+     *  Setter
+     * @param n
+     */
     public synchronized void setValue (int n) {
         slot = n;
     }
+
+    /**
+     *  Increment
+     * @return
+     */
     public synchronized int increment() {
         return slot++;
     }

@@ -10,14 +10,20 @@ import java.util.Arrays;
 
 /**
  *  Rappresenta il messaggio DATA che i GDKC periodicamente genera ed invia ad i nodi del gruppo
- * 
  * @author domenico
  */
 
 
 public class Data implements Serializable {
  
+    /**
+     * Messaggio data cifrato
+     */
     private final byte[] cipherText;
+    
+    /**
+     * Timeslot relativo al messaggio in chiaro
+     */
     public int timeSlot;
    
     /**
@@ -31,7 +37,6 @@ public class Data implements Serializable {
     
     /**
      * Costruttore
-     * 
      * @param cipher messaggio criptato
      * @param slot slot temporale relativo
      */
@@ -42,7 +47,6 @@ public class Data implements Serializable {
     }
     
     /**
-     * 
      * Getter per cipherText
      * @return cipherText
      */
@@ -52,7 +56,6 @@ public class Data implements Serializable {
   
     // forse c'è un problema nel caso in cui ^ venga letto come stringa del cipherText da ragionarci un attimo
     /**
-     * 
      * @return Stringa che rappresenta il messaggio DATA
      */
     public String toStringato(){
