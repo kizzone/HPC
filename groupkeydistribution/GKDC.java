@@ -115,13 +115,13 @@ public class GKDC {
      */
     
     @SuppressWarnings("CallToThreadStartDuringObjectConstruction")
-    public GKDC(IpLink network, Ip4AddressPrefix gkdc_addr) throws IOException, NoSuchAlgorithmException, Exception {
+    public GKDC(IpLink network, Ip4AddressPrefix gkdc_addr, int depth) throws IOException, NoSuchAlgorithmException, Exception {
         
         //riempi k2 di byte casuali---------------------------------------------
         new Random().nextBytes(k2); 
         
         Singleton virtualTime = Singleton.getIstance();
-        virtualTime.setDepth(6); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
+        virtualTime.setDepth(depth); //DA MODIFICARE IN BASEA ALLA SIMULAZIONE
         virtualTime.setLeafs( (int) Math.pow(2,virtualTime.getDepth()) );
 
         // create virtual IP STACK

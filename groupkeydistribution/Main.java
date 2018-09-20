@@ -9,6 +9,7 @@ import it.unipr.netsec.nemo.ip.IpLink;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Scanner;
 
 /**
  * Avvia la simulazione 
@@ -30,8 +31,17 @@ public class Main {
 		IpLink network=new IpLink(new Ip4Prefix("10.1.1.0/24"));
 		// GKDC address = 10.1.1.254
 		Ip4AddressPrefix gkdc_addr=(Ip4AddressPrefix)IpAddressUtils.addressPrefix(network.getPrefix(),254);
-		//modificato da 4 a 1 per motivi di "ordine"
-		for (int i = 0; i < 8; i++) {
+	
+                
+                Scanner in = new Scanner(System.in);
+                
+                System.out.println("Ineserisci la profondità dell'albero da simulare: ");
+                int depth = in.nextInt();
+                System.out.println("Ineserisci in numero di nodi da simulare: ");
+                int nodi = in.nextInt();
+                
+                
+		for (int i = 0; i < nodi; i++) {
                     new Thread() {
                         @Override
 			public void run() {
@@ -47,6 +57,6 @@ public class Main {
 			Thread.sleep(100);
 		}	
 		
-		GKDC gkdc = new GKDC(network,gkdc_addr);
+		GKDC gkdc = new GKDC(network,gkdc_addr,depth);
 	}
 }
